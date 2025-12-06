@@ -74,16 +74,17 @@ export default function App() {
             //   ANDROID_EXPERIMENTAL_SYNCHRONOUS_EVENTS
             // }
             // multiline={false}
-            multiline
-            numberOfLines={9}
+            // multiline
+            // numberOfLines={9}
           />
         </View>
         <TextInput
           placeholder="hello"
+          // eslint-disable-next-line react-native/no-inline-styles
           style={{ borderColor: 'black', borderWidth: 1, width: '100%' }}
           // multiline={false}
           // numberOfLines={2}
-        ></TextInput>
+        />
         <View style={styles.buttonStack}>
           <Pressable onPress={handleFocus} style={styles.button}>
             <Text style={styles.label2}>Focus</Text>
