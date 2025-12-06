@@ -1,5 +1,5 @@
 import { View, StyleSheet } from 'react-native';
-import { TypeRichTextInputView } from 'react-native-type-rich-text-input';
+import { TypeRichTextInputView } from 'react-native-typerich';
 
 export default function App() {
   return (

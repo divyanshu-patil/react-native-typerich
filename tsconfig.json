@@ -2,7 +2,7 @@
   "compilerOptions": {
     "rootDir": ".",
     "paths": {
-      "react-native-type-rich-text-input": ["./src/index"]
+      "react-native-typerich": ["./src/index"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,

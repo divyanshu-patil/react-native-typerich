@@ -1,5 +1,5 @@
 {
-  "name": "react-native-type-rich-text-input",
+  "name": "react-native-typerich",
   "version": "0.1.0",
   "description": "Textinput replacement",
   "main": "./lib/module/index.js",
@@ -32,7 +32,7 @@
     "!**/.*"
   ],
   "scripts": {
-    "example": "yarn workspace react-native-type-rich-text-input-example",
+    "example": "yarn workspace react-native-typerich-example",
     "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build lib",
     "prepare": "bob build",
     "typecheck": "tsc",
@@ -47,14 +47,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/divyanshu-patil/react-native-type-rich-text-input.git"
+    "url": "git+https://github.com/divyanshu-patil/react-native-typerich.git"
   },
   "author": "Divyanshu Patil <work.divyanshupatil@gmail.com> (https://github.com/divyanshu-patil)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/divyanshu-patil/react-native-type-rich-text-input/issues"
+    "url": "https://github.com/divyanshu-patil/react-native-typerich/issues"
   },
-  "homepage": "https://github.com/divyanshu-patil/react-native-type-rich-text-input#readme",
+  "homepage": "https://github.com/divyanshu-patil/react-native-typerich#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
@@ -91,7 +91,7 @@
   "workspaces": [
     "example"
   ],
-  "packageManager": "yarn@4.11.0",
+  "packageManager": "yarn@4.12.0",
   "react-native-builder-bob": {
     "source": "src",
     "output": "lib",
