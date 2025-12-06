@@ -1,7 +1,7 @@
 #pragma once
 
-#include "TypeRichTextInputMeasurementManager.h"
-#include "TypeRichTextInputState.h"
+#include "TypeRichTextInputViewMeasurementManager.h"
+#include "TypeRichTextInputViewState.h"
 
 #include <react/renderer/components/TypeRichTextInputViewSpec/EventEmitters.h>
 #include <react/renderer/components/TypeRichTextInputViewSpec/Props.h>
@@ -9,21 +9,21 @@
 
 namespace facebook::react {
 
-JSI_EXPORT extern const char TypeRichTextInputComponentName[];
+JSI_EXPORT extern const char TypeRichTextInputViewComponentName[];
 /*
  * `ShadowNode` for <TypeRichTextInputView> component.
  */
-class TypeRichTextInputShadowNode final
+class TypeRichTextInputViewShadowNode final
     : public ConcreteViewShadowNode<
-          TypeRichTextInputComponentName, TypeRichTextInputViewProps,
-          TypeRichTextInputViewEventEmitter, TypeRichTextInputState> {
+          TypeRichTextInputViewComponentName, TypeRichTextInputViewProps,
+          TypeRichTextInputViewEventEmitter, TypeRichTextInputViewState> {
 public:
   using ConcreteViewShadowNode::ConcreteViewShadowNode;
 
   // This constructor is called when we "update" shadow node, e.g. after
   // updating shadow node's state
-  TypeRichTextInputShadowNode(ShadowNode const &sourceShadowNode,
-                              ShadowNodeFragment const &fragment)
+  TypeRichTextInputViewShadowNode(ShadowNode const &sourceShadowNode,
+                                  ShadowNodeFragment const &fragment)
       : ConcreteViewShadowNode(sourceShadowNode, fragment) {
     dirtyLayoutIfNeeded();
   }
@@ -35,9 +35,10 @@ public:
     return traits;
   }
 
-  // Associates a shared `TypeRichTextInputMeasurementManager` with the node.
+  // Associates a shared `TypeRichTextInputViewMeasurementManager` with the
+  // node.
   void setMeasurementsManager(
-      const std::shared_ptr<TypeRichTextInputMeasurementManager>
+      const std::shared_ptr<TypeRichTextInputViewMeasurementManager>
           &measurementsManager);
 
   void dirtyLayoutIfNeeded();
@@ -48,6 +49,6 @@ public:
 
 private:
   int forceHeightRecalculationCounter_;
-  std::shared_ptr<TypeRichTextInputMeasurementManager> measurementsManager_;
+  std::shared_ptr<TypeRichTextInputViewMeasurementManager> measurementsManager_;
 };
 } // namespace facebook::react

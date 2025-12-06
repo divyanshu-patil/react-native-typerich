@@ -4,13 +4,13 @@
 
 namespace facebook::react {
 
-class TypeRichTextInputState {
+class TypeRichTextInputViewState {
 public:
-  TypeRichTextInputState() : forceHeightRecalculationCounter_(0) {}
+  TypeRichTextInputViewState() : forceHeightRecalculationCounter_(0) {}
 
   // Used by Kotlin to set current text value
-  TypeRichTextInputState(TypeRichTextInputState const &previousState,
-                         folly::dynamic data)
+  TypeRichTextInputViewState(TypeRichTextInputViewState const &previousState,
+                             folly::dynamic data)
       : forceHeightRecalculationCounter_(
             (int)data["forceHeightRecalculationCounter"].getInt()) {};
   folly::dynamic getDynamic() const { return {}; };

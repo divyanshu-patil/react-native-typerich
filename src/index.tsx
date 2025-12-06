@@ -1,2 +1,5 @@
-export { default as TypeRichTextInputView } from './TypeRichTextInputViewNativeComponent';
-export * from './TypeRichTextInputViewNativeComponent';
+export * from './TypeRichTextInput';
+export type {
+  OnChangeTextEvent,
+  OnChangeSelectionEvent,
+} from './TypeRichTextInputViewNativeComponent';

@@ -1,16 +1,14 @@
 #pragma once
 
-#include "ComponentDescriptors.h"
-
 #include <react/renderer/components/TypeRichTextInputViewSpec/Props.h>
 #include <react/renderer/core/LayoutConstraints.h>
 #include <react/utils/ContextContainer.h>
 
 namespace facebook::react {
 
-class TypeRichTextInputMeasurementManager {
+class TypeRichTextInputViewMeasurementManager {
 public:
-  TypeRichTextInputMeasurementManager(
+  TypeRichTextInputViewMeasurementManager(
       const std::shared_ptr<const ContextContainer> &contextContainer)
       : contextContainer_(contextContainer) {}
 

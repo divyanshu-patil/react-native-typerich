@@ -1,11 +1,12 @@
-#include "TypeRichTextInputShadowNode.h"
+#include "TypeRichTextInputViewShadowNode.h"
 
 #include <react/renderer/core/LayoutContext.h>
 
 namespace facebook::react {
-extern const char TypeRichTextInputComponentName[] = "TypeRichTextInputView";
-void TypeRichTextInputShadowNode::setMeasurementsManager(
-    const std::shared_ptr<TypeRichTextInputMeasurementManager>
+extern const char TypeRichTextInputViewComponentName[] =
+    "TypeRichTextInputView";
+void TypeRichTextInputViewShadowNode::setMeasurementsManager(
+    const std::shared_ptr<TypeRichTextInputViewMeasurementManager>
         &measurementsManager) {
   ensureUnsealed();
   measurementsManager_ = measurementsManager;
@@ -14,7 +15,7 @@ void TypeRichTextInputShadowNode::setMeasurementsManager(
 // Mark layout as dirty after state has been updated
 // Once layout is marked as dirty, `measureContent` will be called in order to
 // recalculate layout
-void TypeRichTextInputShadowNode::dirtyLayoutIfNeeded() {
+void TypeRichTextInputViewShadowNode::dirtyLayoutIfNeeded() {
   const auto state = this->getStateData();
   const auto counter = state.getForceHeightRecalculationCounter();
 
@@ -25,7 +26,7 @@ void TypeRichTextInputShadowNode::dirtyLayoutIfNeeded() {
   }
 }
 
-Size TypeRichTextInputShadowNode::measureContent(
+Size TypeRichTextInputViewShadowNode::measureContent(
     const LayoutContext &layoutContext,
     const LayoutConstraints &layoutConstraints) const {
   return measurementsManager_->measure(getSurfaceId(), getTag(),

@@ -1,4 +1,4 @@
-#include "TypeRichTextInputMeasurementManager.h"
+#include "TypeRichTextInputViewMeasurementManager.h"
 #include "conversions.h"
 
 #include <fbjni/fbjni.h>
@@ -9,7 +9,7 @@ using namespace facebook::jni;
 
 namespace facebook::react {
 
-Size TypeRichTextInputMeasurementManager::measure(
+Size TypeRichTextInputViewMeasurementManager::measure(
     SurfaceId surfaceId, int viewTag, const TypeRichTextInputViewProps &props,
     LayoutConstraints layoutConstraints) const {
   const jni::global_ref<jobject> &fabricUIManager =
