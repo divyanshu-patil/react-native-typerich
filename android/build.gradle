@@ -26,7 +26,7 @@ def getExtOrIntegerDefault(name) {
 }
 
 android {
-  namespace "com.typerichtextinput"
+  namespace "com.typerich"
 
   compileSdkVersion getExtOrIntegerDefault("compileSdkVersion")
 

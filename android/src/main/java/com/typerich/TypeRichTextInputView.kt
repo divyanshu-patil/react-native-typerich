@@ -1,4 +1,4 @@
-package com.typerichtextinput
+package com.typerich
 
 import android.content.Context
 import android.util.AttributeSet

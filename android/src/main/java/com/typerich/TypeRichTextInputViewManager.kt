@@ -1,4 +1,4 @@
-package com.typerichtextinput
+package com.typerich
 
 import android.graphics.Color
 import com.facebook.react.module.annotations.ReactModule
