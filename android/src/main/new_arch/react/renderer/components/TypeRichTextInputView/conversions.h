@@ -1,25 +1,21 @@
 #pragma once
 
 #include <folly/dynamic.h>
-#include <react/renderer/components/FBReactNativeSpec/Props.h>
 #include <react/renderer/components/TypeRichTextInputViewSpec/Props.h>
-#include <react/renderer/core/propsConversions.h>
 
 namespace facebook::react {
 
-#ifdef RN_SERIALIZABLE_STATE
 inline folly::dynamic toDynamic(const TypeRichTextInputViewProps &props) {
-  // Serialize only metrics affecting props
-  folly::dynamic serializedProps = folly::dynamic::object();
-  serializedProps["defaultValue"] = props.defaultValue;
-  serializedProps["placeholder"] = props.placeholder;
-  serializedProps["fontSize"] = props.fontSize;
-  serializedProps["fontWeight"] = props.fontWeight;
-  serializedProps["fontStyle"] = props.fontStyle;
-  serializedProps["fontFamily"] = props.fontFamily;
-
-  return serializedProps;
+  folly::dynamic d = folly::dynamic::object();
+  d["defaultValue"] = props.defaultValue;
+  d["placeholder"] = props.placeholder;
+  d["fontSize"] = props.fontSize;
+  d["fontWeight"] = props.fontWeight;
+  d["fontStyle"] = props.fontStyle;
+  d["fontFamily"] = props.fontFamily;
+  d["multiline"] = props.multiline;
+  d["numberOfLines"] = props.numberOfLines;
+  return d;
 }
-#endif
 
 } // namespace facebook::react

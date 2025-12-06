@@ -16,6 +16,8 @@ public:
                const TypeRichTextInputViewProps &props,
                LayoutConstraints layoutConstraints) const;
 
+  float measureSingleLineHeight(const TypeRichTextInputViewProps &props) const;
+
 private:
   const std::shared_ptr<const ContextContainer> contextContainer_;
 };

@@ -9,6 +9,17 @@ using namespace facebook::jni;
 
 namespace facebook::react {
 
+float TypeRichTextInputViewMeasurementManager::measureSingleLineHeight(
+    const TypeRichTextInputViewProps &props) const {
+
+  // TODO: Proper measurement. Temporary fallback.
+  if (props.fontSize > 0) {
+    return props.fontSize * 1.2f;
+  }
+
+  return 20.0f;
+}
+
 Size TypeRichTextInputViewMeasurementManager::measure(
     SurfaceId surfaceId, int viewTag, const TypeRichTextInputViewProps &props,
     LayoutConstraints layoutConstraints) const {

@@ -1,146 +1,92 @@
-import {
-  type Component,
-  type RefObject,
-  useImperativeHandle,
-  useRef,
-} from 'react';
-import TypeRichTextInputNativeComponent, {
+import { forwardRef, useImperativeHandle, useRef, type Ref } from 'react';
+
+import type { ColorValue, ViewProps } from 'react-native';
+
+import NativeTypeRichTextInput, {
   Commands,
-  type NativeProps,
-  type OnChangeSelectionEvent,
-  type OnChangeTextEvent,
 } from './TypeRichTextInputViewNativeComponent';
-import type {
-  ColorValue,
-  HostInstance,
-  MeasureInWindowOnSuccessCallback,
-  MeasureLayoutOnSuccessCallback,
-  MeasureOnSuccessCallback,
-  NativeMethods,
-  NativeSyntheticEvent,
-  TextStyle,
-  ViewProps,
-  ViewStyle,
-} from 'react-native';
 
-export interface TypeRichTextInputInstance extends NativeMethods {
-  // General commands
-  focus: () => void;
-  blur: () => void;
-  setValue: (value: string) => void;
-}
-
-export interface TypeRichTextInputProps extends Omit<ViewProps, 'children'> {
-  ref?: RefObject<TypeRichTextInputInstance | null>;
+// Public facing props (same as NativeProps but events normalized)
+export interface TypeRichTextInputProps extends ViewProps {
   autoFocus?: boolean;
   editable?: boolean;
-  mentionIndicators?: string[];
   defaultValue?: string;
   placeholder?: string;
   placeholderTextColor?: ColorValue;
   cursorColor?: ColorValue;
   selectionColor?: ColorValue;
-  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
-  style?: ViewStyle | TextStyle;
+  autoCapitalize?: string;
   scrollEnabled?: boolean;
+  multiline?: boolean;
+  numberOfLines?: number;
+
+  // JS friendly event callbacks
   onFocus?: () => void;
   onBlur?: () => void;
-  onChangeText?: (e: NativeSyntheticEvent<OnChangeTextEvent>) => void;
-  onChangeSelection?: (e: NativeSyntheticEvent<OnChangeSelectionEvent>) => void;
-  /**
-   * If true, Android will use experimental synchronous events.
-   * This will prevent from input flickering when updating component size.
-   * However, this is an experimental feature, which has not been thoroughly tested.
-   * We may decide to enable it by default in a future release.
-   * Disabled by default.
-   */
+  onChangeText?: (value: string) => void;
+  onChangeSelection?: (start: number, end: number, text: string) => void;
+
+  // style props
+  color?: ColorValue;
+  fontSize?: number;
+  fontFamily?: string;
+  fontWeight?: string;
+  fontStyle?: string;
+
+  // other
   androidExperimentalSynchronousEvents?: boolean;
 }
 
-const nullthrows = <T,>(value: T | null | undefined): T => {
-  if (value == null) {
-    throw new Error('Unexpected null or undefined value');
+// Imperative API exposed to parent components
+export interface TypeRichTextInputRef {
+  focus: () => void;
+  blur: () => void;
+  setValue: (text: string) => void;
+}
+
+const TypeRichTextInput = forwardRef(
+  (props: TypeRichTextInputProps, ref: Ref<TypeRichTextInputRef>) => {
+    const nativeRef = useRef(null);
+
+    useImperativeHandle(ref, () => ({
+      focus: () => {
+        if (nativeRef.current) {
+          Commands.focus(nativeRef.current);
+        }
+      },
+      blur: () => {
+        if (nativeRef.current) {
+          Commands.blur(nativeRef.current);
+        }
+      },
+      setValue: (text: string) => {
+        if (nativeRef.current) {
+          Commands.setValue(nativeRef.current, text);
+        }
+      },
+    }));
+
+    return (
+      <NativeTypeRichTextInput
+        androidExperimentalSynchronousEvents={
+          props.androidExperimentalSynchronousEvents
+        }
+        ref={nativeRef}
+        {...props}
+        // EVENT MAPPING → normalize nativeEvent
+        onInputFocus={() => props.onFocus?.()}
+        onInputBlur={() => props.onBlur?.()}
+        onChangeText={(event) => props.onChangeText?.(event.nativeEvent.value)}
+        onChangeSelection={(event) =>
+          props.onChangeSelection?.(
+            event.nativeEvent.start,
+            event.nativeEvent.end,
+            event.nativeEvent.text
+          )
+        }
+      />
+    );
   }
+);
 
-  return value;
-};
-
-type ComponentType = (Component<NativeProps, {}, any> & NativeMethods) | null;
-
-export const TypeRichTextInput = ({
-  ref,
-  autoFocus,
-  editable = true,
-  defaultValue,
-  placeholder,
-  placeholderTextColor,
-  cursorColor,
-  selectionColor,
-  style,
-  autoCapitalize = 'sentences',
-  onFocus,
-  onBlur,
-  onChangeText,
-  onChangeSelection,
-  androidExperimentalSynchronousEvents = false,
-  scrollEnabled = true,
-  ...rest
-}: TypeRichTextInputProps) => {
-  const nativeRef = useRef<ComponentType | null>(null);
-
-  useImperativeHandle(ref, () => ({
-    measureInWindow: (callback: MeasureInWindowOnSuccessCallback) => {
-      nullthrows(nativeRef.current).measureInWindow(callback);
-    },
-    measure: (callback: MeasureOnSuccessCallback) => {
-      nullthrows(nativeRef.current).measure(callback);
-    },
-    measureLayout: (
-      relativeToNativeComponentRef: HostInstance | number,
-      onSuccess: MeasureLayoutOnSuccessCallback,
-      onFail?: () => void
-    ) => {
-      nullthrows(nativeRef.current).measureLayout(
-        relativeToNativeComponentRef,
-        onSuccess,
-        onFail
-      );
-    },
-    setNativeProps: (nativeProps: object) => {
-      nullthrows(nativeRef.current).setNativeProps(nativeProps);
-    },
-    focus: () => {
-      Commands.focus(nullthrows(nativeRef.current));
-    },
-    blur: () => {
-      Commands.blur(nullthrows(nativeRef.current));
-    },
-    setValue: (value: string) => {
-      Commands.setValue(nullthrows(nativeRef.current), value);
-    },
-  }));
-
-  return (
-    <TypeRichTextInputNativeComponent
-      ref={nativeRef}
-      editable={editable}
-      autoFocus={autoFocus}
-      defaultValue={defaultValue}
-      placeholder={placeholder}
-      placeholderTextColor={placeholderTextColor}
-      cursorColor={cursorColor}
-      selectionColor={selectionColor}
-      style={style}
-      autoCapitalize={autoCapitalize}
-      onInputFocus={onFocus}
-      onInputBlur={onBlur}
-      onChangeText={onChangeText}
-      onChangeSelection={onChangeSelection}
-      androidExperimentalSynchronousEvents={
-        androidExperimentalSynchronousEvents
-      }
-      scrollEnabled={scrollEnabled}
-      {...rest}
-    />
-  );
-};
+export default TypeRichTextInput;

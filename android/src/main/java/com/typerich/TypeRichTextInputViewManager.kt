@@ -111,6 +111,16 @@ class TypeRichTextInputViewManager :
     view.scrollEnabled = scrollEnabled
   }
 
+  @ReactProp(name = "multiline")
+  override fun setMultiline(view: TypeRichTextInputView?, value: Boolean) {
+    view?.setMultiline(value)
+  }
+
+  @ReactProp(name = "numberOfLines")
+  override fun setNumberOfLines(view: TypeRichTextInputView?, lines: Int) {
+    view?.setNumberOfLines(lines)
+  }
+
   override fun onAfterUpdateTransaction(view: TypeRichTextInputView) {
     super.onAfterUpdateTransaction(view)
     view.afterUpdateTransaction()

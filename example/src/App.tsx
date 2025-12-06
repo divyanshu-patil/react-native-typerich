@@ -2,15 +2,16 @@ import {
   View,
   StyleSheet,
   Text,
-  type NativeSyntheticEvent,
+  // type NativeSyntheticEvent,
   ScrollView,
   Pressable,
+  TextInput,
 } from 'react-native';
 import {
   TypeRichTextInput,
-  type OnChangeTextEvent,
-  type TypeRichTextInputInstance,
-  type OnChangeSelectionEvent,
+  // type OnChangeTextEvent,
+  // type OnChangeSelectionEvent,
+  type TypeRichTextInputRef,
 } from 'react-native-typerich';
 import { useRef } from 'react';
 
@@ -18,14 +19,14 @@ import { useRef } from 'react';
 // However, it's still experimental and not tested well.
 // Disabled for now, as it's causing some strange issues.
 // See: https://github.com/divyanshu-patil/react-native-typerich/issues/229
-const ANDROID_EXPERIMENTAL_SYNCHRONOUS_EVENTS = false;
+// const ANDROID_EXPERIMENTAL_SYNCHRONOUS_EVENTS = false;
 
 export default function App() {
-  const ref = useRef<TypeRichTextInputInstance>(null);
+  const ref = useRef<TypeRichTextInputRef>(null);
 
-  const handleChangeText = (e: NativeSyntheticEvent<OnChangeTextEvent>) => {
-    console.log('Text changed:', e?.nativeEvent.value);
-  };
+  // const handleChangeText = (e: NativeSyntheticEvent<OnChangeTextEvent>) => {
+  //   console.log('Text changed:', e?.nativeEvent.value);
+  // };
 
   const handleFocus = () => {
     ref.current?.focus();
@@ -43,11 +44,11 @@ export default function App() {
     console.log('Input blurred');
   };
 
-  const handleSelectionChangeEvent = (
-    e: NativeSyntheticEvent<OnChangeSelectionEvent>
-  ) => {
-    console.log('selection event', e.nativeEvent);
-  };
+  // const handleSelectionChangeEvent = (
+  //   e: NativeSyntheticEvent<OnChangeSelectionEvent>
+  // ) => {
+  //   console.log('selection event', e.nativeEvent);
+  // };
 
   return (
     <>
@@ -64,16 +65,25 @@ export default function App() {
             placeholderTextColor="rgb(0, 26, 114)"
             selectionColor="deepskyblue"
             cursorColor="dodgerblue"
-            autoCapitalize="sentences"
-            onChangeText={handleChangeText}
+            autoCapitalize="words"
+            onChangeText={(text) => console.log(text)}
             onFocus={handleFocusEvent}
             onBlur={handleBlurEvent}
-            onChangeSelection={handleSelectionChangeEvent}
-            androidExperimentalSynchronousEvents={
-              ANDROID_EXPERIMENTAL_SYNCHRONOUS_EVENTS
-            }
+            onChangeSelection={(e) => console.log(e)}
+            // androidExperimentalSynchronousEvents={
+            //   ANDROID_EXPERIMENTAL_SYNCHRONOUS_EVENTS
+            // }
+            // multiline={false}
+            multiline
+            numberOfLines={9}
           />
         </View>
+        <TextInput
+          placeholder="hello"
+          style={{ borderColor: 'black', borderWidth: 1, width: '100%' }}
+          // multiline={false}
+          // numberOfLines={2}
+        ></TextInput>
         <View style={styles.buttonStack}>
           <Pressable onPress={handleFocus} style={styles.button}>
             <Text style={styles.label2}>Focus</Text>
@@ -133,7 +143,7 @@ const styles = StyleSheet.create({
     width: '100%',
     // maxHeight: 180,
     backgroundColor: 'gainsboro',
-    fontSize: 18,
+    fontSize: 20,
     fontFamily: 'Nunito-Regular',
     paddingVertical: 12,
     paddingHorizontal: 14,

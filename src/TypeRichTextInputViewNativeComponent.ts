@@ -1,13 +1,15 @@
+import type { ColorValue } from 'react-native';
+import {
+  codegenNativeComponent,
+  codegenNativeCommands,
+  type ViewProps,
+} from 'react-native';
+import type { HostComponent } from 'react-native';
 import type {
   DirectEventHandler,
   Float,
   Int32,
-} from 'react-native/Libraries/Types/CodegenTypes';
-import {} from 'react-native';
-import { codegenNativeCommands, codegenNativeComponent } from 'react-native';
-
-import type { ColorValue, HostComponent, ViewProps } from 'react-native';
-import React from 'react';
+} from 'react-native/Libraries/Types/CodegenTypesNamespace';
 
 export interface OnChangeTextEvent {
   value: string;
@@ -19,7 +21,7 @@ export interface OnChangeSelectionEvent {
   text: string;
 }
 
-export interface NativeProps extends ViewProps {
+export interface TypeRichTextInputNativeProps extends ViewProps {
   // base props
   autoFocus?: boolean;
   editable?: boolean;
@@ -30,6 +32,8 @@ export interface NativeProps extends ViewProps {
   selectionColor?: ColorValue;
   autoCapitalize?: string;
   scrollEnabled?: boolean;
+  multiline?: boolean;
+  numberOfLines?: Int32;
 
   // event callbacks
   onInputFocus?: DirectEventHandler<null>;
@@ -45,11 +49,11 @@ export interface NativeProps extends ViewProps {
   fontWeight?: string;
   fontStyle?: string;
 
-  // Experimental
-  androidExperimentalSynchronousEvents: boolean;
+  // other
+  androidExperimentalSynchronousEvents?: boolean;
 }
 
-type ComponentType = HostComponent<NativeProps>;
+type ComponentType = HostComponent<TypeRichTextInputNativeProps>;
 
 interface NativeCommands {
   // General commands
@@ -67,6 +71,9 @@ export const Commands: NativeCommands = codegenNativeCommands<NativeCommands>({
   ],
 });
 
-export default codegenNativeComponent<NativeProps>('TypeRichTextInputView', {
-  interfaceOnly: true,
-}) as HostComponent<NativeProps>;
+export default codegenNativeComponent<TypeRichTextInputNativeProps>(
+  'TypeRichTextInputView',
+  {
+    interfaceOnly: true,
+  }
+) as HostComponent<TypeRichTextInputNativeProps>;

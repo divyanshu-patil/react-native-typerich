@@ -111,7 +111,6 @@ class TypeRichTextInputView : AppCompatEditText {
         layoutManager.invalidateLayout()
 
       }
-
       override fun afterTextChanged(s: Editable?) {}
     })
   }
@@ -187,6 +186,17 @@ class TypeRichTextInputView : AppCompatEditText {
     inputMethodManager?.showSoftInput(this, 0)
     setSelection(text?.length ?: 0)
   }
+
+  fun setMultiline(enabled: Boolean) {
+    // enable multi-line behavior
+    isSingleLine = !enabled
+  }
+
+  fun setNumberOfLines(lines: Int) {
+    // set max lines (used visually, ShadowNode handles layout)
+    setLines(lines)
+  }
+
 
   fun setValue(value: CharSequence?) {
     if (value == null) return
