@@ -14,8 +14,13 @@ class TypeRichTextInputViewLayoutManager(private val view: TypeRichTextInputView
 
     val counter = forceHeightRecalculationCounter
     forceHeightRecalculationCounter++
+
+    val lineCount = view.layout?.lineCount ?: 1
+
     val state = Arguments.createMap()
     state.putInt("forceHeightRecalculationCounter", counter)
+    state.putInt("lineCount", lineCount)
+
     view.stateWrapper?.updateState(state)
   }
 

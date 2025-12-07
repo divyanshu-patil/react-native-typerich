@@ -189,12 +189,24 @@ class TypeRichTextInputView : AppCompatEditText {
 
   fun setMultiline(enabled: Boolean) {
     // enable multi-line behavior
-    isSingleLine = !enabled
+    if(enabled){
+      inputType = InputType.TYPE_CLASS_TEXT
+      isSingleLine = true
+      return
+    }
+    inputType = InputType.TYPE_TEXT_FLAG_MULTI_LINE
+    isSingleLine = false
   }
 
   fun setNumberOfLines(lines: Int) {
-    // set max lines (used visually, ShadowNode handles layout)
-    setLines(lines)
+    maxLines = lines
+    minLines = 1
+
+    // Optional: Ensure proper scrolling when maxLines is reached
+//    if (lines > 0) {
+//      setLines(lines) // Only if you want fixed height
+//      isVerticalScrollBarEnabled = true
+//    }
   }
 
 

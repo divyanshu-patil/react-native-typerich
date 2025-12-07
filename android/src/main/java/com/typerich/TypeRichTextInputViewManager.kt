@@ -157,7 +157,6 @@ class TypeRichTextInputViewManager :
   }
 
   override fun setValue(view: TypeRichTextInputView?, text: String) {
-    view?.setValue(text)
   }
 
   override fun measure(

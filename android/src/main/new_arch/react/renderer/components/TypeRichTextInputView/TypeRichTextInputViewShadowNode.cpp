@@ -49,10 +49,7 @@ Size TypeRichTextInputViewShadowNode::measureContent(
 
   float lineHeight = measurementsManager_->measureSingleLineHeight(props);
 
-  // -------------------------------
-  // 1) SINGLE LINE MODE
-  // -------------------------------
-
+  // single line mode
   __android_log_print(ANDROID_LOG_INFO, "TypeRichCpp", "numberOfLines = %d",
                       props.numberOfLines);
   __android_log_print(ANDROID_LOG_INFO, "TypeRichCpp", "multiline = %s",
@@ -63,17 +60,12 @@ Size TypeRichTextInputViewShadowNode::measureContent(
     return size;
   }
 
-  // -------------------------------
-  // 2) MULTILINE WITHOUT LIMIT
-  // -------------------------------
+  //  multiline without limit
   if (props.numberOfLines <= 0) {
     return size; // natural Android height
   }
 
-  // -------------------------------
-  // 3) MULTILINE WITH LIMIT
-  // auto-grow until X, then clamp
-  // -------------------------------
+  // multiline with limit and autogrow
   // Extract padding (React Native provides it inside props.style)
   // Read padding from Fabric LayoutMetrics (RN 0.75+)
   const auto &layoutMetrics = getLayoutMetrics();
@@ -88,13 +80,51 @@ Size TypeRichTextInputViewShadowNode::measureContent(
 
   // Compute natural line count
   float rawLines = contentHeight / lineHeight;
-  int naturalLines = std::max(1, (int)std::floor(rawLines + 0.001f));
+  int naturalLines = std::max(1, (int)std::floor(rawLines));
 
   // Clamp based on numberOfLines
   int finalLines = std::min(naturalLines, props.numberOfLines);
 
   // Reapply padding
   size.height = paddingTop + paddingBottom + lineHeight * finalLines;
+
+  // Handle single line case, bugfix when there is only single line remaining
+  // after you delete other lines
+  // temp fix might change implementation later
+  if (finalLines == 1) {
+    size.height = naturalHeight;
+    return size;
+  }
+
+  // bugfix height of one line after the numberof lines is reached
+  // temp fix might change implementation later
+  if (finalLines == props.numberOfLines) {
+    size.height = lineHeight * finalLines;
+    __android_log_print(ANDROID_LOG_INFO, "TypeRichCpp",
+                        "size reached finalLines = numberOfLines");
+    __android_log_print(ANDROID_LOG_INFO, "TypeRichCpp", " size.height  = %f",
+                        size.height);
+    return size;
+  }
+
+  __android_log_print(ANDROID_LOG_INFO, "TypeRichCpp", "naturalHeight = %f",
+                      naturalHeight);
+  __android_log_print(ANDROID_LOG_INFO, "TypeRichCpp", "contentHeight = %f",
+                      contentHeight);
+  __android_log_print(ANDROID_LOG_INFO, "TypeRichCpp", "rawLines = %f",
+                      rawLines);
+  __android_log_print(ANDROID_LOG_INFO, "TypeRichCpp", "naturalLines = %d",
+                      naturalLines);
+  __android_log_print(ANDROID_LOG_INFO, "TypeRichCpp", "finalLines = %d",
+                      finalLines);
+  __android_log_print(ANDROID_LOG_INFO, "TypeRichCpp", "size.height = %f",
+                      size.height);
+  __android_log_print(ANDROID_LOG_INFO, "TypeRichCpp", "lineheight = %f",
+                      lineHeight);
+  __android_log_print(ANDROID_LOG_INFO, "TypeRichCpp", "paddingTop = %f",
+                      paddingTop);
+  __android_log_print(ANDROID_LOG_INFO, "TypeRichCpp", "paddingBottom = %f",
+                      paddingBottom);
 
   return size;
 }

@@ -75,7 +75,7 @@ export default function App() {
             // }
             // multiline={false}
             // multiline
-            // numberOfLines={9}
+            // numberOfLines={4}
           />
         </View>
         <TextInput

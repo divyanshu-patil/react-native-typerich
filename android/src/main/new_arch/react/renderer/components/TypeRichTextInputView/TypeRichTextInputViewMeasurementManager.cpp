@@ -23,6 +23,7 @@ float TypeRichTextInputViewMeasurementManager::measureSingleLineHeight(
 Size TypeRichTextInputViewMeasurementManager::measure(
     SurfaceId surfaceId, int viewTag, const TypeRichTextInputViewProps &props,
     LayoutConstraints layoutConstraints) const {
+
   const jni::global_ref<jobject> &fabricUIManager =
       contextContainer_->at<jni::global_ref<jobject>>("FabricUIManager");
 
@@ -35,6 +36,24 @@ Size TypeRichTextInputViewMeasurementManager::measure(
 
   auto minimumSize = layoutConstraints.minimumSize;
   auto maximumSize = layoutConstraints.maximumSize;
+
+  // CRITICAL FIX: Clamp maximum height BEFORE measuring if numberOfLines is set
+  if (props.numberOfLines > 0 && props.multiline) {
+    float lineHeight = measureSingleLineHeight(props);
+    // Don't guess padding here — clamp based on content height only.
+    float maxAllowedContentHeight = (lineHeight * props.numberOfLines);
+
+    // If props contains padding you can add it:
+    // float paddingTop = props.paddingTop; // if available
+    // float paddingBottom = props.paddingBottom;
+    // float maxAllowedHeight = paddingTop + paddingBottom +
+    // maxAllowedContentHeight;
+
+    float maxAllowedHeight = maxAllowedContentHeight; // no guessed padding
+
+    // Clamp the max height constraint (this clamps the content area)
+    maximumSize.height = std::min(maximumSize.height, maxAllowedHeight);
+  }
 
   local_ref<JString> componentName = make_jstring("TypeRichTextInputView");
 
