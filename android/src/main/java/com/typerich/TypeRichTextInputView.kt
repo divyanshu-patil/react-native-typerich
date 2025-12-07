@@ -74,11 +74,11 @@ class TypeRichTextInputView : AppCompatEditText {
   }
 
   private fun prepareComponent() {
-    isSingleLine = false
+    isSingleLine = true
     isHorizontalScrollBarEnabled = false
     isVerticalScrollBarEnabled = true
     gravity = Gravity.TOP or Gravity.START
-    inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
+    inputType = InputType.TYPE_CLASS_TEXT
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
       breakStrategy = LineBreaker.BREAK_STRATEGY_HIGH_QUALITY
@@ -188,21 +188,17 @@ class TypeRichTextInputView : AppCompatEditText {
   }
 
   fun setMultiline(enabled: Boolean) {
-    // enable multi-line behavior
-    if(enabled){
-      inputType = InputType.TYPE_CLASS_TEXT
-      isSingleLine = true
-      return
+    isSingleLine = !enabled
+    if (enabled) {
+      inputType = inputType or InputType.TYPE_TEXT_FLAG_MULTI_LINE
+    } else {
+      inputType = inputType and InputType.TYPE_TEXT_FLAG_MULTI_LINE.inv()
     }
-    inputType = InputType.TYPE_TEXT_FLAG_MULTI_LINE
-    isSingleLine = false
   }
-
   fun setNumberOfLines(lines: Int) {
     maxLines = lines
     minLines = 1
 
-    // Optional: Ensure proper scrolling when maxLines is reached
 //    if (lines > 0) {
 //      setLines(lines) // Only if you want fixed height
 //      isVerticalScrollBarEnabled = true

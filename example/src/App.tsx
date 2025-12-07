@@ -73,7 +73,6 @@ export default function App() {
             // androidExperimentalSynchronousEvents={
             //   ANDROID_EXPERIMENTAL_SYNCHRONOUS_EVENTS
             // }
-            // multiline={false}
             // multiline
             // numberOfLines={4}
           />
