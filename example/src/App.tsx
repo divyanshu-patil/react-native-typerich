@@ -6,6 +6,7 @@ import {
   ScrollView,
   Pressable,
   TextInput,
+  Image,
 } from 'react-native';
 import {
   TypeRichTextInput,
@@ -13,7 +14,7 @@ import {
   // type OnChangeSelectionEvent,
   type TypeRichTextInputRef,
 } from 'react-native-typerich';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 // Enabling this prop fixes input flickering while auto growing.
 // However, it's still experimental and not tested well.
@@ -23,6 +24,7 @@ import { useRef } from 'react';
 
 export default function App() {
   const ref = useRef<TypeRichTextInputRef>(null);
+  const [image, setImage] = useState<any | null>(null);
 
   // const handleChangeText = (e: NativeSyntheticEvent<OnChangeTextEvent>) => {
   //   console.log('Text changed:', e?.nativeEvent.value);
@@ -57,6 +59,9 @@ export default function App() {
         contentContainerStyle={styles.content}
       >
         <Text style={styles.label}>TypeRich cdshjc Text Input</Text>
+        {image && (
+          <Image source={{ uri: image.uri }} width={200} height={200} />
+        )}
         <View style={styles.editor}>
           <TypeRichTextInput
             ref={ref}
@@ -73,8 +78,12 @@ export default function App() {
             // androidExperimentalSynchronousEvents={
             //   ANDROID_EXPERIMENTAL_SYNCHRONOUS_EVENTS
             // }
-            // multiline
-            // numberOfLines={4}
+            multiline
+            numberOfLines={4}
+            onPasteImageData={(e) => {
+              setImage(e);
+              console.log(e);
+            }}
           />
         </View>
         <TextInput
@@ -143,7 +152,7 @@ const styles = StyleSheet.create({
     width: '100%',
     // maxHeight: 180,
     backgroundColor: 'gainsboro',
-    fontSize: 20,
+    // fontSize: 34,
     fontFamily: 'Nunito-Regular',
     paddingVertical: 12,
     paddingHorizontal: 14,

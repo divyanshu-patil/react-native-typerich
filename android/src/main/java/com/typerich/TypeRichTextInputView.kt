@@ -1,6 +1,8 @@
 package com.typerich
 
 import android.content.Context
+import android.content.ClipboardManager
+import android.net.Uri
 import android.graphics.BlendMode
 import android.graphics.BlendModeColorFilter
 import android.graphics.Color
@@ -14,8 +16,12 @@ import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.MotionEvent
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.widget.AppCompatEditText
+import androidx.core.view.inputmethod.EditorInfoCompat
+import androidx.core.view.inputmethod.InputConnectionCompat
 import com.facebook.react.bridge.ReactContext
 import com.facebook.react.common.ReactConstants
 import com.facebook.react.uimanager.PixelUtil
@@ -27,6 +33,8 @@ import com.facebook.react.views.text.ReactTypefaceUtils.parseFontWeight
 import com.typerich.events.OnChangeTextEvent
 import com.typerich.events.OnInputBlurEvent
 import com.typerich.events.OnInputFocusEvent
+import com.typerich.events.OnPasteImageEvent
+import java.io.File
 import kotlin.math.ceil
 
 class TypeRichTextInputView : AppCompatEditText {
@@ -113,6 +121,128 @@ class TypeRichTextInputView : AppCompatEditText {
       }
       override fun afterTextChanged(s: Editable?) {}
     })
+  }
+
+  // https://developer.android.com/develop/ui/views/touch-and-input/image-keyboard
+  // for gboard stickers and images
+  override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection? {
+    val ic = super.onCreateInputConnection(outAttrs) ?: return null
+
+    EditorInfoCompat.setContentMimeTypes(
+      outAttrs,
+      arrayOf("image/png", "image/jpg", "image/jpeg", "image/gif", "image/webp")
+    )
+
+    return InputConnectionCompat.createWrapper(ic, outAttrs, onCommitContent)
+  }
+
+  private val onCommitContent = InputConnectionCompat.OnCommitContentListener { info, flags, _ ->
+    try {
+      // request permission if needed
+      if ((flags and InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION) != 0) {
+        try {
+          info.requestPermission()
+        } catch (ex: Exception) {
+          // permission failed
+        }
+      }
+
+      val uri = info.contentUri
+
+      // SAFE mime extraction: check mimeTypeCount; fallback if none
+      val mime = try {
+        val desc = info.description
+        if (desc != null && desc.mimeTypeCount > 0) {
+          desc.getMimeType(0) ?: "image/*"
+        } else {
+          "image/*"
+        }
+      } catch (ex: Exception) {
+        "image/*"
+      }
+
+      val meta = buildMetaForUri(uri, mime)
+      dispatchImagePasteEvent(meta)
+
+      if ((flags and InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION) != 0) {
+        try { info.releasePermission() } catch (_: Exception) {}
+      }
+
+      true
+    } catch (e: Exception) {
+      e.printStackTrace()
+      false
+    }
+  }
+
+  // paste handler
+  override fun onTextContextMenuItem(id: Int): Boolean {
+    if (id == android.R.id.paste || id == android.R.id.pasteAsPlainText) {
+      val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+        ?: return super.onTextContextMenuItem(id)
+
+      val clip = clipboard.primaryClip ?: return super.onTextContextMenuItem(id)
+      val item = clip.getItemAt(0)
+
+      // uri
+      item.uri?.let { uri ->
+        val mime = context.contentResolver.getType(uri) ?: "image/*"
+        dispatchImagePasteEvent(buildMetaForUri(uri, mime))
+        return true
+      }
+
+      // intent
+      item.intent?.data?.let { uri ->
+        val mime = context.contentResolver.getType(uri) ?: "image/*"
+        dispatchImagePasteEvent(buildMetaForUri(uri, mime))
+        return true
+      }
+
+      // text
+      val text = item.coerceToText(context).toString()
+      this.append(text)
+      return true
+    }
+
+    return super.onTextContextMenuItem(id)
+  }
+
+  // --- helper: convert content URI to cached file metadata ---
+  private data class PasteImageMeta(val fileName: String, val fileSize: Long, val type: String, val uri: String)
+
+  private fun buildMetaForUri(srcUri: Uri, mime: String): PasteImageMeta {
+    val ext = when (mime) {
+      "image/png" -> ".png"
+      "image/jpeg", "image/jpg" -> ".jpg"
+      "image/webp" -> ".webp"
+      "image/gif" -> ".gif"
+      else -> ".bin"
+    }
+
+    val temp = File(context.cacheDir, "typerich_${System.nanoTime()}$ext")
+    context.contentResolver.openInputStream(srcUri)?.use { input ->
+      temp.outputStream().use { out -> input.copyTo(out) }
+    }
+
+    return PasteImageMeta(
+      fileName = temp.name,
+      fileSize = temp.length(),
+      type = mime,
+      uri = Uri.fromFile(temp).toString()
+    )
+  }
+
+  private fun dispatchImagePasteEvent(meta: PasteImageMeta) {
+    val reactContext = context as ReactContext
+    val dispatcher = UIManagerHelper.getEventDispatcherForReactTag(reactContext, id)
+    val surfaceId = UIManagerHelper.getSurfaceId(reactContext)
+    try {
+      dispatcher?.dispatchEvent(
+        OnPasteImageEvent(surfaceId, id, meta.uri,meta.type,meta.fileName,meta.fileSize.toDouble(),null,experimentalSynchronousEvents)
+      )
+    } catch (e: Exception) {
+      e.printStackTrace()
+    }
   }
 
   override fun onTouchEvent(ev: MotionEvent): Boolean {
@@ -304,6 +434,19 @@ class TypeRichTextInputView : AppCompatEditText {
         InputType.TYPE_TEXT_FLAG_CAP_SENTENCES.inv()
         ) or if (flag == InputType.TYPE_NULL) 0 else flag
   }
+
+  fun setSecureTextEntry(isSecure: Boolean) {
+    transformationMethod =
+      if (isSecure)
+        android.text.method.PasswordTransformationMethod.getInstance()
+      else
+        null
+
+    // Prevent text from showing in suggestions/autofill if secure
+    isLongClickable = !isSecure
+    setTextIsSelectable(!isSecure)
+  }
+
 
   override fun isLayoutRequested(): Boolean {
     return false

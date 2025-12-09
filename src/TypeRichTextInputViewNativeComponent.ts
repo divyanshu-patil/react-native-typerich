@@ -6,6 +6,10 @@ import {
 } from 'react-native';
 import type { HostComponent } from 'react-native';
 import type {
+  BubblingEventHandler,
+  Double,
+} from 'react-native/Libraries/Types/CodegenTypes';
+import type {
   DirectEventHandler,
   Float,
   Int32,
@@ -19,6 +23,13 @@ export interface OnChangeSelectionEvent {
   start: Int32;
   end: Int32;
   text: string;
+}
+export interface onPasteImageEventData {
+  uri: string;
+  type: string;
+  fileName: string;
+  fileSize: Double;
+  error?: { message: string };
 }
 
 export interface TypeRichTextInputNativeProps extends ViewProps {
@@ -34,12 +45,14 @@ export interface TypeRichTextInputNativeProps extends ViewProps {
   scrollEnabled?: boolean;
   multiline?: boolean;
   numberOfLines?: Int32;
+  secureTextEntry?: boolean;
 
   // event callbacks
   onInputFocus?: DirectEventHandler<null>;
   onInputBlur?: DirectEventHandler<null>;
   onChangeText?: DirectEventHandler<OnChangeTextEvent>;
   onChangeSelection?: DirectEventHandler<OnChangeSelectionEvent>;
+  onPasteImage?: BubblingEventHandler<onPasteImageEventData>;
 
   // Style related props - used for generating proper setters in component's manager
   // These should not be passed as regular props

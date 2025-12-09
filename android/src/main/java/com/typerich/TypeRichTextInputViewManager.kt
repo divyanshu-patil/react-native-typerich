@@ -12,6 +12,7 @@ import com.typerich.events.OnInputBlurEvent
 import com.typerich.events.OnInputFocusEvent
 import com.typerich.events.OnChangeSelectionEvent
 import com.typerich.events.OnChangeTextEvent
+import com.typerich.events.OnPasteImageEvent
 
 @ReactModule(name = TypeRichTextInputViewManager.NAME)
 class TypeRichTextInputViewManager :
@@ -44,6 +45,7 @@ class TypeRichTextInputViewManager :
       OnInputBlurEvent.EVENT_NAME to mapOf("registrationName" to OnInputBlurEvent.EVENT_NAME),
       OnChangeTextEvent.EVENT_NAME to mapOf("registrationName" to OnChangeTextEvent.EVENT_NAME),
       OnChangeSelectionEvent.EVENT_NAME to mapOf("registrationName" to OnChangeSelectionEvent.EVENT_NAME),
+      OnPasteImageEvent.EVENT_NAME to mapOf("registrationName" to OnPasteImageEvent.EVENT_NAME),
     )
 
   @ReactProp(name = "defaultValue")
@@ -120,6 +122,12 @@ class TypeRichTextInputViewManager :
   override fun setNumberOfLines(view: TypeRichTextInputView?, lines: Int) {
     view?.setNumberOfLines(lines)
   }
+
+  @ReactProp(name = "secureTextEntry")
+  override fun setSecureTextEntry(view: TypeRichTextInputView?, value: Boolean) {
+    view?.setSecureTextEntry(value)
+  }
+
 
   override fun onAfterUpdateTransaction(view: TypeRichTextInputView) {
     super.onAfterUpdateTransaction(view)

@@ -1,9 +1,10 @@
 import { forwardRef, useImperativeHandle, useRef, type Ref } from 'react';
 
-import type { ColorValue, ViewProps } from 'react-native';
+import type { ColorValue, ViewProps, NativeSyntheticEvent } from 'react-native';
 
 import NativeTypeRichTextInput, {
   Commands,
+  type onPasteImageEventData,
 } from './TypeRichTextInputViewNativeComponent';
 
 // Public facing props (same as NativeProps but events normalized)
@@ -19,12 +20,14 @@ export interface TypeRichTextInputProps extends ViewProps {
   scrollEnabled?: boolean;
   multiline?: boolean;
   numberOfLines?: number;
+  secureTextEntry?: boolean;
 
   // JS friendly event callbacks
   onFocus?: () => void;
   onBlur?: () => void;
   onChangeText?: (value: string) => void;
   onChangeSelection?: (start: number, end: number, text: string) => void;
+  onPasteImageData?: (data: onPasteImageEventData) => void;
 
   // style props
   color?: ColorValue;
@@ -37,7 +40,6 @@ export interface TypeRichTextInputProps extends ViewProps {
   androidExperimentalSynchronousEvents?: boolean;
 }
 
-// Imperative API exposed to parent components
 export interface TypeRichTextInputRef {
   focus: () => void;
   blur: () => void;
@@ -66,6 +68,27 @@ const TypeRichTextInput = forwardRef(
       },
     }));
 
+    /**
+     todo: make this only for NativeSyntheticEvent
+     */
+    function handlePasteImage(
+      event:
+        | onPasteImageEventData
+        | { nativeEvent: onPasteImageEventData }
+        | NativeSyntheticEvent<onPasteImageEventData>
+        | any
+    ): void {
+      // always getting nativeevent but will refactor later
+      const data: onPasteImageEventData | undefined =
+        event && typeof event === 'object'
+          ? event.nativeEvent ?? event
+          : undefined;
+
+      if (data) {
+        props.onPasteImageData?.(data as onPasteImageEventData);
+      }
+    }
+
     return (
       <NativeTypeRichTextInput
         androidExperimentalSynchronousEvents={
@@ -73,7 +96,6 @@ const TypeRichTextInput = forwardRef(
         }
         ref={nativeRef}
         {...props}
-        // EVENT MAPPING → normalize nativeEvent
         onInputFocus={() => props.onFocus?.()}
         onInputBlur={() => props.onBlur?.()}
         onChangeText={(event) => props.onChangeText?.(event.nativeEvent.value)}
@@ -84,6 +106,7 @@ const TypeRichTextInput = forwardRef(
             event.nativeEvent.text
           )
         }
+        onPasteImage={handlePasteImage}
       />
     );
   }
