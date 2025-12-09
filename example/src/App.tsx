@@ -58,7 +58,7 @@ export default function App() {
         style={styles.container}
         contentContainerStyle={styles.content}
       >
-        <Text style={styles.label}>TypeRich cdshjc Text Input</Text>
+        <Text style={styles.label}>TypeRich Text Input library by div</Text>
         {image && (
           <Image source={{ uri: image.uri }} width={200} height={200} />
         )}
@@ -66,7 +66,7 @@ export default function App() {
           <TypeRichTextInput
             ref={ref}
             style={styles.editorInput}
-            placeholder="Type something here..."
+            placeholder="custom textinput with paste support..."
             placeholderTextColor="rgb(0, 26, 114)"
             selectionColor="deepskyblue"
             cursorColor="dodgerblue"
@@ -87,9 +87,14 @@ export default function App() {
           />
         </View>
         <TextInput
-          placeholder="hello"
+          placeholder="default text input"
           // eslint-disable-next-line react-native/no-inline-styles
-          style={{ borderColor: 'black', borderWidth: 1, width: '100%' }}
+          style={{
+            borderColor: 'black',
+            borderWidth: 1,
+            width: '100%',
+            marginVertical: 20,
+          }}
           // multiline={false}
           // numberOfLines={2}
         />
