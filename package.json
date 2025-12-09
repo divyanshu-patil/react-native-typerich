@@ -125,7 +125,8 @@
       "componentProvider": {
         "TypeRichTextInputView": "TypeRichTextInputView"
       }
-    }
+    },
+    "includesGeneratedCode": true
   },
   "prettier": {
     "quoteProps": "consistent",
