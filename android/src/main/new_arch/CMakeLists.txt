@@ -11,7 +11,7 @@ set(LIB_TARGET_NAME react_codegen_${LIB_SPEC_LITERAL})
 
 # Directories
 set(LIB_ANDROID_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../..)
-set(LIB_ANDROID_GENERATED_JNI_DIR ${LIB_ANDROID_DIR}/generated/android/app/build/generated/source/codegen/jni)
+set(LIB_ANDROID_GENERATED_JNI_DIR ${LIB_ANDROID_DIR}/generated/jni)
 set(LIB_ANDROID_GENERATED_COMPONENTS_DIR ${LIB_ANDROID_GENERATED_JNI_DIR}/react/renderer/components/${LIB_SPEC_LITERAL})
 
 set(LIB_CUSTOM_DIR ${CMAKE_CURRENT_SOURCE_DIR}/react/renderer/components/${LIB_CUSTOM_LITERAL})
