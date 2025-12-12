@@ -4,7 +4,7 @@ import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.uimanager.events.Event
 
-class OnChangeSelectionEvent(surfaceId: Int, viewId: Int, private val text: String, private val start: Int, private val end: Int, private val experimentalSynchronousEvents: Boolean) :
+class OnChangeSelectionEvent(surfaceId: Int, viewId: Int, private val start: Int, private val end: Int, private val text: String, private val experimentalSynchronousEvents: Boolean) :
   Event<OnChangeSelectionEvent>(surfaceId, viewId) {
 
   override fun getEventName(): String {

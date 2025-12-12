@@ -33,6 +33,7 @@ import com.facebook.react.views.text.ReactTypefaceUtils.parseFontWeight
 import com.typerich.events.OnChangeTextEvent
 import com.typerich.events.OnInputBlurEvent
 import com.typerich.events.OnInputFocusEvent
+import com.typerich.events.OnChangeSelectionEvent
 import com.typerich.events.OnPasteImageEvent
 import java.io.File
 import kotlin.math.ceil
@@ -58,7 +59,7 @@ class TypeRichTextInputView : AppCompatEditText {
   private var fontWeight: Int = ReactConstants.UNSET
   private var defaultValue: CharSequence? = null
   private var defaultValueDirty: Boolean = false
-
+  private var keyboardAppearance: String = "default"
   private var inputMethodManager: InputMethodManager? = null
 
   constructor(context: Context) : super(context) {
@@ -278,8 +279,25 @@ class TypeRichTextInputView : AppCompatEditText {
 
   override fun onSelectionChanged(selStart: Int, selEnd: Int) {
     super.onSelectionChanged(selStart, selEnd)
-    // you can later dispatch OnChangeSelectionEvent here if needed
+
+    val reactContext = context as? ReactContext ?: return
+    val dispatcher = UIManagerHelper.getEventDispatcherForReactTag(reactContext, id)
+      ?: return
+
+    val surfaceId = UIManagerHelper.getSurfaceId(reactContext)
+
+    dispatcher.dispatchEvent(
+      OnChangeSelectionEvent(
+        surfaceId,
+        id,
+        selStart,
+        selEnd,
+        text?.toString() ?: "",
+        experimentalSynchronousEvents
+      )
+    )
   }
+
 
   override fun clearFocus() {
     super.clearFocus()
