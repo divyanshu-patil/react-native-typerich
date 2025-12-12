@@ -128,6 +128,12 @@ class TypeRichTextInputViewManager :
     view?.setSecureTextEntry(value)
   }
 
+  @ReactProp(name = "keyboardAppearance")
+  override fun setKeyboardAppearance(
+    view: TypeRichTextInputView,
+    appearance: String?
+  ) {
+  }
 
   override fun onAfterUpdateTransaction(view: TypeRichTextInputView) {
     super.onAfterUpdateTransaction(view)
