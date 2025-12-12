@@ -10289,10 +10289,11 @@ __metadata:
     react-native: "npm:0.81.1"
     react-native-builder-bob: "npm:^0.40.16"
     react-native-monorepo-config: "npm:^0.1.9"
+    react-native-typerich: "npm:*"
   languageName: unknown
   linkType: soft
 
-"react-native-typerich@workspace:.":
+"react-native-typerich@npm:*, react-native-typerich@workspace:.":
   version: 0.0.0-use.local
   resolution: "react-native-typerich@workspace:."
   dependencies:
