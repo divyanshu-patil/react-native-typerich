@@ -1,43 +1,44 @@
 import { forwardRef, useImperativeHandle, useRef, type Ref } from 'react';
 
-import type { ColorValue, ViewProps, NativeSyntheticEvent } from 'react-native';
+import type { NativeSyntheticEvent } from 'react-native';
 
 import NativeTypeRichTextInput, {
   Commands,
+  type OnChangeSelectionEvent,
+  type OnChangeTextEvent,
   type onPasteImageEventData,
+  type TypeRichTextInputNativeProps,
 } from './TypeRichTextInputNativeComponent';
 
-// Public facing props (same as NativeProps but events normalized)
-export interface TypeRichTextInputProps extends ViewProps {
-  autoFocus?: boolean;
-  editable?: boolean;
-  defaultValue?: string;
-  placeholder?: string;
-  placeholderTextColor?: ColorValue;
-  cursorColor?: ColorValue;
-  selectionColor?: ColorValue;
-  autoCapitalize?: string;
-  scrollEnabled?: boolean;
-  multiline?: boolean;
-  numberOfLines?: number;
-  secureTextEntry?: boolean;
+type MaybeNativeEvent<T> = T | { nativeEvent: T };
 
-  // JS friendly event callbacks
+export function normalizeEvent<T>(event: MaybeNativeEvent<T>): T {
+  if (event && typeof event === 'object' && 'nativeEvent' in event) {
+    return (event as { nativeEvent: T }).nativeEvent;
+  }
+  return event as T;
+}
+
+// Public facing props (same as NativeProps but events normalized)
+export interface TypeRichTextInputProps
+  extends Omit<
+    TypeRichTextInputNativeProps,
+    | 'onChangeText'
+    | 'onChangeSelection'
+    | 'onInputFocus'
+    | 'onInputBlur'
+    | 'onPasteImage'
+  > {
+  // JS-friendly callbacks
   onFocus?: () => void;
   onBlur?: () => void;
   onChangeText?: (value: string) => void;
-  onChangeSelection?: (start: number, end: number, text: string) => void;
+  onChangeSelection?: (event: {
+    start: number;
+    end: number;
+    text: string;
+  }) => void;
   onPasteImageData?: (data: onPasteImageEventData) => void;
-
-  // style props
-  color?: ColorValue;
-  fontSize?: number;
-  fontFamily?: string;
-  fontWeight?: string;
-  fontStyle?: string;
-
-  // other
-  androidExperimentalSynchronousEvents?: boolean;
 }
 
 export interface TypeRichTextInputRef {
@@ -89,6 +90,24 @@ const TypeRichTextInput = forwardRef(
       }
     }
 
+    function handleOnChangeTextEvent(
+      event: OnChangeTextEvent | { nativeEvent: OnChangeTextEvent }
+    ) {
+      const e = normalizeEvent(event);
+      props.onChangeText?.(e.value);
+    }
+
+    function handleonChangeSelectionEvent(
+      event: OnChangeSelectionEvent | { nativeEvent: OnChangeSelectionEvent }
+    ) {
+      const e = normalizeEvent(event);
+      props.onChangeSelection?.({
+        start: e.start,
+        end: e.end,
+        text: e.text,
+      });
+    }
+
     return (
       <NativeTypeRichTextInput
         androidExperimentalSynchronousEvents={
@@ -98,14 +117,8 @@ const TypeRichTextInput = forwardRef(
         {...props}
         onInputFocus={() => props.onFocus?.()}
         onInputBlur={() => props.onBlur?.()}
-        onChangeText={(event) => props.onChangeText?.(event.nativeEvent.value)}
-        onChangeSelection={(event) =>
-          props.onChangeSelection?.(
-            event.nativeEvent.start,
-            event.nativeEvent.end,
-            event.nativeEvent.text
-          )
-        }
+        onChangeText={handleOnChangeTextEvent}
+        onChangeSelection={handleonChangeSelectionEvent}
         onPasteImage={handlePasteImage}
       />
     );

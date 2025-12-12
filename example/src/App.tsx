@@ -74,7 +74,9 @@ export default function App() {
             onChangeText={(text) => console.log(text)}
             onFocus={handleFocusEvent}
             onBlur={handleBlurEvent}
-            onChangeSelection={(e) => console.log(e)}
+            onChangeSelection={(e) => {
+              console.log('start', e);
+            }}
             // androidExperimentalSynchronousEvents={
             //   ANDROID_EXPERIMENTAL_SYNCHRONOUS_EVENTS
             // }
@@ -84,6 +86,8 @@ export default function App() {
               setImage(e);
               console.log(e);
             }}
+            defaultValue="my name is div"
+            keyboardAppearance="dark"
           />
         </View>
         <TextInput

@@ -8,12 +8,11 @@ import type { HostComponent } from 'react-native';
 import type {
   BubblingEventHandler,
   Double,
-} from 'react-native/Libraries/Types/CodegenTypes';
-import type {
+  WithDefault,
   DirectEventHandler,
   Float,
   Int32,
-} from 'react-native/Libraries/Types/CodegenTypesNamespace';
+} from 'react-native/Libraries/Types/CodegenTypes';
 
 export interface OnChangeTextEvent {
   value: string;
@@ -46,6 +45,7 @@ export interface TypeRichTextInputNativeProps extends ViewProps {
   multiline?: boolean;
   numberOfLines?: Int32;
   secureTextEntry?: boolean;
+  keyboardAppearance?: WithDefault<'default' | 'light' | 'dark', 'default'>; // ios only
 
   // event callbacks
   onInputFocus?: DirectEventHandler<null>;
