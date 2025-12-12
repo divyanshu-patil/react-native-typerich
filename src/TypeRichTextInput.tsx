@@ -5,7 +5,7 @@ import type { ColorValue, ViewProps, NativeSyntheticEvent } from 'react-native';
 import NativeTypeRichTextInput, {
   Commands,
   type onPasteImageEventData,
-} from './TypeRichTextInputViewNativeComponent';
+} from './TypeRichTextInputNativeComponent';
 
 // Public facing props (same as NativeProps but events normalized)
 export interface TypeRichTextInputProps extends ViewProps {
