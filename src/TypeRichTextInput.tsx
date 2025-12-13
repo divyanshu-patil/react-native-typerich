@@ -55,6 +55,7 @@ export interface TypeRichTextInputRef {
   focus: () => void;
   blur: () => void;
   setValue: (text: string) => void;
+  setSelection: (start: number, end: number) => void;
 }
 
 /**
@@ -86,6 +87,11 @@ const TypeRichTextInput = forwardRef(
       setValue: (text: string) => {
         if (nativeRef.current) {
           Commands.setValue(nativeRef.current, text);
+        }
+      },
+      setSelection(start, end) {
+        if (nativeRef.current) {
+          Commands.setSelection(nativeRef.current, start, end);
         }
       },
     }));

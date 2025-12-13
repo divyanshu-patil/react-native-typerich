@@ -13,8 +13,8 @@ import {
   TypeRichTextInput,
   // type OnChangeTextEvent,
   // type OnChangeSelectionEvent,
-  type TypeRichTextInputRef,
   type onPasteImageEventData,
+  type TypeRichTextInputRef,
 } from 'react-native-typerich';
 import { useRef, useState } from 'react';
 
@@ -38,6 +38,14 @@ export default function App() {
 
   const handleBlur = () => {
     ref.current?.blur();
+  };
+
+  const handleSetValue = () => {
+    ref.current?.setValue('hello div');
+  };
+
+  const handleSetSelection = () => {
+    ref.current?.setSelection(2, 9);
   };
 
   const handleFocusEvent = () => {
@@ -107,13 +115,23 @@ export default function App() {
           // multiline={false}
           // numberOfLines={2}
         />
-        <View style={styles.buttonStack}>
-          <Pressable onPress={handleFocus} style={styles.button}>
-            <Text style={styles.label2}>Focus</Text>
-          </Pressable>
-          <Pressable onPress={handleBlur} style={styles.button}>
-            <Text style={styles.label2}>Blur</Text>
-          </Pressable>
+        <View>
+          <View style={styles.buttonStack}>
+            <Pressable onPress={handleFocus} style={styles.button}>
+              <Text style={styles.label2}>Focus</Text>
+            </Pressable>
+            <Pressable onPress={handleBlur} style={styles.button}>
+              <Text style={styles.label2}>Blur</Text>
+            </Pressable>
+          </View>
+          <View style={styles.buttonStack}>
+            <Pressable onPress={handleSetValue} style={styles.button}>
+              <Text style={styles.label2}>Set value to hello div</Text>
+            </Pressable>
+            <Pressable onPress={handleSetSelection} style={styles.button}>
+              <Text style={styles.label2}>set selection</Text>
+            </Pressable>
+          </View>
         </View>
       </ScrollView>
     </>
