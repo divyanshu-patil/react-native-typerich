@@ -93,6 +93,7 @@ export default function App() {
             }}
             defaultValue="my name is div"
             keyboardAppearance="dark"
+            lineHeight={22}
           />
         </View>
         <TextInput

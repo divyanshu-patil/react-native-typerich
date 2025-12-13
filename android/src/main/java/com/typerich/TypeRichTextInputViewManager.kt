@@ -135,6 +135,11 @@ class TypeRichTextInputViewManager :
   ) {
   }
 
+  @ReactProp(name = "lineHeight")
+  override fun setLineHeight(view: TypeRichTextInputView?, lineHeight: Float) {
+    view?.setLineHeightReact(lineHeight)
+  }
+
   override fun onAfterUpdateTransaction(view: TypeRichTextInputView) {
     super.onAfterUpdateTransaction(view)
     view.afterUpdateTransaction()

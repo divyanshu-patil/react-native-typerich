@@ -62,6 +62,7 @@ class TypeRichTextInputView : AppCompatEditText {
   private var defaultValueDirty: Boolean = false
   private var keyboardAppearance: String = "default"
   private var inputMethodManager: InputMethodManager? = null
+  private var lineHeightPx: Int? = null
 
   constructor(context: Context) : super(context) {
     prepareComponent()
@@ -471,6 +472,27 @@ class TypeRichTextInputView : AppCompatEditText {
     setTextIsSelectable(!isSecure)
   }
 
+  fun setLineHeightReact(lineHeight: Float) {
+    if (lineHeight <= 0f) return
+
+    // RN sends lineHeight in DIP
+    val px = ceil(PixelUtil.toPixelFromDIP(lineHeight)).toInt()
+    lineHeightPx = px
+    applyLineHeight()
+  }
+
+  private fun applyLineHeight() {
+    val lh = lineHeightPx ?: return
+
+    val fontMetrics = paint.fontMetricsInt
+    val fontHeight = fontMetrics.descent - fontMetrics.ascent
+
+    val extra = lh - fontHeight
+    if (extra > 0) {
+      // same logic as ReactTextView
+      setLineSpacing(extra.toFloat(), 1f)
+    }
+  }
 
   override fun isLayoutRequested(): Boolean {
     return false
@@ -479,6 +501,7 @@ class TypeRichTextInputView : AppCompatEditText {
   fun afterUpdateTransaction() {
     updateTypeface()
     updateDefaultValue()
+    applyLineHeight()
   }
 
   fun setDefaultValue(value: CharSequence?) {

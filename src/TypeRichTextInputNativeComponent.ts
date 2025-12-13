@@ -65,6 +65,7 @@ export interface TypeRichTextInputNativeProps extends ViewProps {
   fontFamily?: string;
   fontWeight?: string;
   fontStyle?: string;
+  lineHeight?: Float;
 
   // other
   androidExperimentalSynchronousEvents?: boolean;
