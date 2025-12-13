@@ -1,8 +1,9 @@
 import { forwardRef, useImperativeHandle, useRef, type Ref } from 'react';
 
 import type { NativeSyntheticEvent } from 'react-native';
+import { Platform, View } from 'react-native';
 
-import NativeTypeRichTextInput, {
+import {
   Commands,
   type OnChangeSelectionEvent,
   type OnChangeTextEvent,
@@ -10,6 +11,15 @@ import NativeTypeRichTextInput, {
   type TypeRichTextInputNativeProps,
 } from './TypeRichTextInputNativeComponent';
 
+let NativeTypeRichTextInput: any;
+
+if (Platform.OS === 'android') {
+  NativeTypeRichTextInput =
+    require('./TypeRichTextInputNativeComponent').default;
+} else {
+  // iOS fallback (temporary)
+  NativeTypeRichTextInput = View;
+}
 type MaybeNativeEvent<T> = T | { nativeEvent: T };
 
 export function normalizeEvent<T>(event: MaybeNativeEvent<T>): T {
@@ -47,6 +57,17 @@ export interface TypeRichTextInputRef {
   setValue: (text: string) => void;
 }
 
+/**
+ * TypeRichTextInput
+ *
+ * A high-performance rich text input component with:
+ * - image pasting support
+ * - Fabric-based rendering
+ * - custom ShadowNode on Android
+ *
+ * iOS support is currently unavailable and renders a `View` comp as fallback
+ * we are planning to add support for ios too soon
+ */
 const TypeRichTextInput = forwardRef(
   (props: TypeRichTextInputProps, ref: Ref<TypeRichTextInputRef>) => {
     const nativeRef = useRef(null);
