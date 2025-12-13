@@ -1,6 +1,6 @@
 {
   "name": "react-native-typerich",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Textinput replacement",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
@@ -43,7 +43,12 @@
   "keywords": [
     "react-native",
     "ios",
-    "android"
+    "android",
+    "rich text input",
+    "image pasting",
+    "gboard stickers",
+    "live markdown",
+    "markdown textinput"
   ],
   "repository": {
     "type": "git",

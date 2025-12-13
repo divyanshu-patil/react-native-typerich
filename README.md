@@ -1,26 +1,45 @@
 # react-native-type-rich-text-input
 
-Textinput replacement
+Drop in TextInput replacement with inbuilt support for Image Pasting and Gboard stickers
+currently available only for android
 
 ## Installation
 
-
 ```sh
-npm install react-native-type-rich-text-input
+npm install react-native-typerich
 ```
-
 
 ## Usage
 
-
 ```js
-import { TypeRichTextInputView } from "react-native-type-rich-text-input";
+import { TypeRichTextInput } from 'react-native-typerich';
 
 // ...
 
-<TypeRichTextInputView color="tomato" />
+<TypeRichTextInput
+  ref={ref}
+  style={styles.typeRichTextInput}
+  placeholder="Type here..."
+  placeholderTextColor="rgb(0, 26, 114)"
+  selectionColor="red"
+  cursorColor="green"
+  autoCapitalize="words"
+  onChangeText={(text: string) => console.log(text)}
+  onFocus={() => console.log('focused')}
+  onBlur={() => console.log('blurred')}
+  onChangeSelection={(e: { start: number, end: number, text: string }) =>
+    console.log(e)
+  }
+  androidExperimentalSynchronousEvents={true}
+  multiline
+  numberOfLines={5}
+  onPasteImageData={(e) => {
+    console.log(e);
+  }}
+  defaultValue="TypeRichTextInput"
+  keyboardAppearance="dark" // ios only
+/>;
 ```
-
 
 ## Contributing
 
