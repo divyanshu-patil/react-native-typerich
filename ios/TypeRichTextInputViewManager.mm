@@ -1,20 +1,36 @@
+// TypeRichTextInputViewManager.mm
 #import <React/RCTViewManager.h>
-#import <React/RCTComponentViewFactory.h>
-#import "TypeRichTextInputView.h"
+#import <React/RCTUIManager.h>
 
-@interface TypeRichTextInputViewManager : NSObject <RCTComponentViewProtocol>
+@interface TypeRichTextInputViewManager : RCTViewManager
 @end
 
 @implementation TypeRichTextInputViewManager
 
-+ (NSString *)componentName
-{
-  return @"TypeRichTextInputView";
-}
+RCT_EXPORT_MODULE(TypeRichTextInputView)
 
-+ (Class)componentViewClass
+#ifdef RCT_NEW_ARCH_ENABLED
+- (UIView *)view
 {
-  return [TypeRichTextInputView class];
+  return [[UIView alloc] init];
 }
+#else
+- (UIView *)view
+{
+  UIView *view = [[UIView alloc] init];
+  view.backgroundColor = [UIColor clearColor];
+  return view;
+}
+#endif
+
+RCT_EXPORT_VIEW_PROPERTY(autoFocus, BOOL)
+RCT_EXPORT_VIEW_PROPERTY(editable, BOOL)
+RCT_EXPORT_VIEW_PROPERTY(defaultValue, NSString)
+RCT_EXPORT_VIEW_PROPERTY(placeholder, NSString)
+RCT_EXPORT_VIEW_PROPERTY(multiline, BOOL)
+
+RCT_EXPORT_VIEW_PROPERTY(onInputFocus, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onInputBlur, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onChangeText, RCTDirectEventBlock)
 
 @end

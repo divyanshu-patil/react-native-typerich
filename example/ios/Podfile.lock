@@ -2254,7 +2254,7 @@ PODS:
     - React-utils (= 0.81.1)
     - SocketRocket
   - SocketRocket (0.7.1)
-  - TypeRichTextInput (0.1.0):
+  - TypeRichTextInput (0.1.1):
     - boost
     - DoubleConversion
     - fast_float
@@ -2583,9 +2583,9 @@ SPEC CHECKSUMS:
   ReactCodegen: 4d203eddf6f977caa324640a20f92e70408d648b
   ReactCommon: ce5d4226dfaf9d5dacbef57b4528819e39d3a120
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
-  TypeRichTextInput: df1a1ea086de96f4b158c8f5b4ef7a59c767a05b
+  TypeRichTextInput: f9854020a601f32d4debf1df20f869776fd195bd
   Yoga: 11c9686a21e2cd82a094a723649d9f4507200fb0
 
-PODFILE CHECKSUM: 7bb853d405d773a01626dfff59773cebb04de50c
+PODFILE CHECKSUM: 32064aec2e4fd956051ae18c71720479742bc76a
 
 COCOAPODS: 1.15.2

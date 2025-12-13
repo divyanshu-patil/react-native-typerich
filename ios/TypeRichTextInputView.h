@@ -1,8 +1,9 @@
+// TypeRichTextInputView.h
 #import <React/RCTViewComponentView.h>
 #import <UIKit/UIKit.h>
 
-#ifndef TypeRichTextInputViewNativeComponent_h
-#define TypeRichTextInputViewNativeComponent_h
+#ifndef TypeRichTextInputView_h
+#define TypeRichTextInputView_h
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -11,4 +12,4 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_ASSUME_NONNULL_END
 
-#endif /* TypeRichTextInputViewNativeComponent_h */
+#endif /* TypeRichTextInputView_h */
