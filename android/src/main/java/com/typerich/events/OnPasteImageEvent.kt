@@ -11,6 +11,7 @@ class OnPasteImageEvent(
   private val type: String,
   private val fileName: String,
   private val fileSize: Double,  // RN Int32 maps to Kotlin Int
+  private val source: String, // clipboard or gboard
   private val errorMessage: String? = null,
   private val experimentalSynchronousEvents: Boolean
 ) : Event<OnPasteImageEvent>(surfaceId, viewId) {
@@ -25,6 +26,7 @@ class OnPasteImageEvent(
     map.putString("type", type)
     map.putString("fileName", fileName)
     map.putDouble("fileSize", fileSize)
+    map.putString("source", source)
 
     if (errorMessage != null) {
       val errorMap = Arguments.createMap()

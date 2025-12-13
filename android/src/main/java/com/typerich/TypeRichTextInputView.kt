@@ -35,6 +35,7 @@ import com.typerich.events.OnInputBlurEvent
 import com.typerich.events.OnInputFocusEvent
 import com.typerich.events.OnChangeSelectionEvent
 import com.typerich.events.OnPasteImageEvent
+import com.typerich.utils.EnumPasteSource
 import java.io.File
 import kotlin.math.ceil
 
@@ -162,7 +163,9 @@ class TypeRichTextInputView : AppCompatEditText {
         "image/*"
       }
 
-      val meta = buildMetaForUri(uri, mime)
+      val source = EnumPasteSource.KEYBOARD.value
+
+      val meta = buildMetaForUri(uri, mime, source)
       dispatchImagePasteEvent(meta)
 
       if ((flags and InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION) != 0) {
@@ -187,15 +190,17 @@ class TypeRichTextInputView : AppCompatEditText {
 
       // uri
       item.uri?.let { uri ->
+        val source = EnumPasteSource.CLIPBOARD.value
         val mime = context.contentResolver.getType(uri) ?: "image/*"
-        dispatchImagePasteEvent(buildMetaForUri(uri, mime))
+        dispatchImagePasteEvent(buildMetaForUri(uri, mime, source))
         return true
       }
 
       // intent
       item.intent?.data?.let { uri ->
+        val source = EnumPasteSource.CLIPBOARD.value
         val mime = context.contentResolver.getType(uri) ?: "image/*"
-        dispatchImagePasteEvent(buildMetaForUri(uri, mime))
+        dispatchImagePasteEvent(buildMetaForUri(uri, mime, source))
         return true
       }
 
@@ -209,9 +214,9 @@ class TypeRichTextInputView : AppCompatEditText {
   }
 
   // --- helper: convert content URI to cached file metadata ---
-  private data class PasteImageMeta(val fileName: String, val fileSize: Long, val type: String, val uri: String)
+  private data class PasteImageMeta(val fileName: String, val fileSize: Long,val source: String, val type: String, val uri: String)
 
-  private fun buildMetaForUri(srcUri: Uri, mime: String): PasteImageMeta {
+  private fun buildMetaForUri(srcUri: Uri, mime: String,source: String): PasteImageMeta {
     val ext = when (mime) {
       "image/png" -> ".png"
       "image/jpeg", "image/jpg" -> ".jpg"
@@ -229,7 +234,8 @@ class TypeRichTextInputView : AppCompatEditText {
       fileName = temp.name,
       fileSize = temp.length(),
       type = mime,
-      uri = Uri.fromFile(temp).toString()
+      uri = Uri.fromFile(temp).toString(),
+      source = source
     )
   }
 
@@ -239,7 +245,7 @@ class TypeRichTextInputView : AppCompatEditText {
     val surfaceId = UIManagerHelper.getSurfaceId(reactContext)
     try {
       dispatcher?.dispatchEvent(
-        OnPasteImageEvent(surfaceId, id, meta.uri,meta.type,meta.fileName,meta.fileSize.toDouble(),null,experimentalSynchronousEvents)
+        OnPasteImageEvent(surfaceId, id, meta.uri,meta.type,meta.fileName,meta.fileSize.toDouble(),meta.source,null,experimentalSynchronousEvents)
       )
     } catch (e: Exception) {
       e.printStackTrace()

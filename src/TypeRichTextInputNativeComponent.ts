@@ -28,6 +28,7 @@ export interface onPasteImageEventData {
   type: string;
   fileName: string;
   fileSize: Double;
+  source: 'keyboard' | 'clipboard' | 'context_menu';
   error?: { message: string };
 }
 

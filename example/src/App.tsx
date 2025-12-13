@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import {
   View,
   StyleSheet,
@@ -61,7 +62,10 @@ export default function App() {
       >
         <Text style={styles.label}>TypeRich Text Input library by div</Text>
         {image && (
-          <Image source={{ uri: image.uri }} width={200} height={200} />
+          <>
+            <ImageInfo image={image} />
+            <Image source={{ uri: image.uri }} width={200} height={200} />
+          </>
         )}
         <View style={styles.editor}>
           <TypeRichTextInput
@@ -93,7 +97,6 @@ export default function App() {
         </View>
         <TextInput
           placeholder="default text input"
-          // eslint-disable-next-line react-native/no-inline-styles
           style={{
             borderColor: 'black',
             borderWidth: 1,
@@ -115,6 +118,85 @@ export default function App() {
     </>
   );
 }
+
+const ImageInfo = ({ image }: { image: any }) => {
+  return (
+    <View>
+      <Text style={{ color: 'red', fontWeight: 'bold' }}>
+        filename:{' '}
+        <Text
+          style={{
+            color: 'black',
+            fontStyle: 'italic',
+            fontWeight: 'regular',
+          }}
+        >
+          {image.fileName}
+        </Text>
+      </Text>
+      <Text style={{ color: 'red', fontWeight: 'bold' }}>
+        fileSize:{' '}
+        <Text
+          style={{
+            color: 'black',
+            fontStyle: 'italic',
+            fontWeight: 'regular',
+          }}
+        >
+          {image.fileSize}
+        </Text>
+      </Text>
+      <Text style={{ color: 'red', fontWeight: 'bold' }}>
+        type:{' '}
+        <Text
+          style={{
+            color: 'black',
+            fontStyle: 'italic',
+            fontWeight: 'regular',
+          }}
+        >
+          {image.type}
+        </Text>
+      </Text>
+      <Text style={{ color: 'red', fontWeight: 'bold' }}>
+        source:{' '}
+        <Text
+          style={{
+            color: 'black',
+            fontStyle: 'italic',
+            fontWeight: 'regular',
+          }}
+        >
+          {image.source}
+        </Text>
+      </Text>
+      <Text style={{ color: 'red', fontWeight: 'bold' }}>
+        uri:{' '}
+        <Text
+          style={{
+            color: 'black',
+            fontStyle: 'italic',
+            fontWeight: 'regular',
+          }}
+        >
+          {image.uri}
+        </Text>
+      </Text>
+      <Text style={{ color: 'red', fontWeight: 'bold' }}>
+        error:{' '}
+        <Text
+          style={{
+            color: 'black',
+            fontStyle: 'italic',
+            fontWeight: 'regular',
+          }}
+        >
+          {image.error?.message ?? 'no error'}
+        </Text>
+      </Text>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
