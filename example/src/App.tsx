@@ -13,6 +13,7 @@ import {
   // type OnChangeTextEvent,
   // type OnChangeSelectionEvent,
   type TypeRichTextInputRef,
+  type onPasteImageEventData,
 } from 'react-native-typerich';
 import { useRef, useState } from 'react';
 
@@ -24,7 +25,7 @@ import { useRef, useState } from 'react';
 
 export default function App() {
   const ref = useRef<TypeRichTextInputRef>(null);
-  const [image, setImage] = useState<any | null>(null);
+  const [image, setImage] = useState<onPasteImageEventData | null>(null);
 
   // const handleChangeText = (e: NativeSyntheticEvent<OnChangeTextEvent>) => {
   //   console.log('Text changed:', e?.nativeEvent.value);

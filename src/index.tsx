@@ -3,4 +3,5 @@ export * from './TypeRichTextInput';
 export type {
   OnChangeTextEvent,
   OnChangeSelectionEvent,
+  onPasteImageEventData,
 } from './TypeRichTextInputNativeComponent';

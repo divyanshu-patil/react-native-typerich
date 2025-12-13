@@ -47,6 +47,9 @@ export interface TypeRichTextInputNativeProps extends ViewProps {
   secureTextEntry?: boolean;
   keyboardAppearance?: WithDefault<'default' | 'light' | 'dark', 'default'>; // ios only
 
+  // Todo
+  // disableImagePasting?: boolean
+
   // event callbacks
   onInputFocus?: DirectEventHandler<null>;
   onInputBlur?: DirectEventHandler<null>;
@@ -87,6 +90,6 @@ export const Commands: NativeCommands = codegenNativeCommands<NativeCommands>({
 export default codegenNativeComponent<TypeRichTextInputNativeProps>(
   'TypeRichTextInputView',
   {
-    interfaceOnly: true,
+    // interfaceOnly: true,
   }
 ) as HostComponent<TypeRichTextInputNativeProps>;
