@@ -90,6 +90,6 @@ export const Commands: NativeCommands = codegenNativeCommands<NativeCommands>({
 export default codegenNativeComponent<TypeRichTextInputNativeProps>(
   'TypeRichTextInputView',
   {
-    // interfaceOnly: true,
+    interfaceOnly: true,
   }
 ) as HostComponent<TypeRichTextInputNativeProps>;

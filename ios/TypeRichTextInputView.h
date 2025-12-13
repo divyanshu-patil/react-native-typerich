@@ -2,14 +2,15 @@
 #import <React/RCTViewComponentView.h>
 #import <UIKit/UIKit.h>
 
-#ifndef TypeRichTextInputView_h
-#define TypeRichTextInputView_h
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface TypeRichTextInputView : RCTViewComponentView
+
+@property(nonatomic, assign) BOOL blockEmitting;
+
+// width → measured size
+- (CGSize)measureSize:(CGFloat)maxWidth;
+
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif /* TypeRichTextInputView_h */

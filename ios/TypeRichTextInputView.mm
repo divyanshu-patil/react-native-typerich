@@ -28,10 +28,19 @@ using namespace facebook::react;
 - (instancetype)initWithFrame:(CGRect)frame
 {
   if (self = [super initWithFrame:frame]) {
-    static const auto defaultProps = std::make_shared<const TypeRichTextInputViewProps>();
+    static const auto defaultProps =
+        std::make_shared<const TypeRichTextInputViewProps>();
     _props = defaultProps;
+    _blockEmitting = NO;
   }
   return self;
+}
+
+- (CGSize)measureSize:(CGFloat)maxWidth
+{
+  // TEMP implementation (safe baseline)
+  // Replace later with real text measurement
+  return CGSizeMake(maxWidth, 40);
 }
 
 - (void)updateProps:(Props::Shared const &)props oldProps:(Props::Shared const &)oldProps
