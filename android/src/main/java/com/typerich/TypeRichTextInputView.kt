@@ -382,7 +382,7 @@ class TypeRichTextInputView : AppCompatEditText {
       setSelection(start, end)
     }
   }
-  
+
   fun setAutoFocus(autoFocus: Boolean) {
     this.autoFocus = autoFocus
   }

@@ -158,6 +158,16 @@ export default function App() {
             >
               <Text style={styles.label2}>Wrap middle with * *</Text>
             </Pressable>
+            <Pressable
+              style={styles.button}
+              onPress={() => {
+                const ref: any = inputRef.current;
+                console.log('JS ref:', ref);
+                console.log('Native ref:', ref?.getNativeRef?.());
+              }}
+            >
+              <Text style={styles.label2}>Debug Native Ref</Text>
+            </Pressable>
           </View>
         </View>
       </ScrollView>
