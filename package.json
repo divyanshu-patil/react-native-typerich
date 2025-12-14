@@ -1,6 +1,6 @@
 {
   "name": "react-native-typerich",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Textinput replacement",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
