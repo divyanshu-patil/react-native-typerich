@@ -63,6 +63,8 @@ class TypeRichTextInputView : AppCompatEditText {
   private var keyboardAppearance: String = "default"
   private var inputMethodManager: InputMethodManager? = null
   private var lineHeightPx: Int? = null
+  private var isSettingTextFromJS = false
+
 
   constructor(context: Context) : super(context) {
     prepareComponent()
@@ -101,10 +103,12 @@ class TypeRichTextInputView : AppCompatEditText {
     layoutManager = TypeRichTextInputViewLayoutManager(this)
 
     addTextChangedListener(object : TextWatcher {
-      override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+      override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) { if (isSettingTextFromJS) return}
 
       override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
         if (!isDuringTransaction) {
+          if (isSettingTextFromJS) return
+
           val reactContext = context as ReactContext
           val surfaceId = UIManagerHelper.getSurfaceId(reactContext)
           val dispatcher =
@@ -360,26 +364,48 @@ class TypeRichTextInputView : AppCompatEditText {
 //    }
   }
 
-
   fun setValue(value: CharSequence?) {
     if (value == null) return
 
-    val editText = this
+    val current = text?.toString() ?: ""
+    val newText = value.toString()
 
-    // Save current selection BEFORE text change
-    val prevStart = editText.selectionStart
-    val prevEnd = editText.selectionEnd
+    if (current == newText) {
+      return
+    }
 
-    runAsATransaction {
-      if (editText.text.toString() != value.toString()) {
-        setText(value.toString())
+    isSettingTextFromJS = true
+    try {
+      // Save current selection BEFORE text change
+      val prevStart = selectionStart
+      val prevEnd = selectionEnd
+
+      runAsATransaction {
+        // Check if this is just an insertion at cursor (fast typing case)
+        val isSimpleInsertion = prevStart == prevEnd &&
+          newText.length > current.length &&
+          prevStart <= newText.length &&
+          current.substring(0, minOf(prevStart, current.length)) ==
+          newText.substring(0, minOf(prevStart, current.length))
+
+        setText(newText)
+
+        val len = text?.length ?: 0
+
+        if (isSimpleInsertion) {
+          // For insertions, move cursor to end of new content
+          val diff = newText.length - current.length
+          val newPos = (prevStart + diff).coerceIn(0, len)
+          setSelection(newPos)
+        } else {
+          // For other changes, try to preserve relative position
+          val start = prevStart.coerceIn(0, len)
+          val end = prevEnd.coerceIn(0, len)
+          setSelection(start, end)
+        }
       }
-
-      val len = editText.text?.length ?: 0
-      val start = prevStart.coerceIn(0, len)
-      val end = prevEnd.coerceIn(0, len)
-
-      setSelection(start, end)
+    } finally {
+      isSettingTextFromJS = false
     }
   }
 
