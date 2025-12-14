@@ -21,11 +21,12 @@ import { useRef, useState } from 'react';
 // Enabling this prop fixes input flickering while auto growing.
 // However, it's still experimental and not tested well.
 // Disabled for now, as it's causing some strange issues.
-// See: https://github.com/divyanshu-patil/react-native-typerich/issues/229
+// See: https://github.com/software-mansion/react-native-enriched/issues/229
 // const ANDROID_EXPERIMENTAL_SYNCHRONOUS_EVENTS = false;
 
 export default function App() {
-  const ref = useRef<TypeRichTextInputRef>(null);
+  const inputRef = useRef<TypeRichTextInputRef>(null);
+  const textRef = useRef('hello world');
   const [image, setImage] = useState<onPasteImageEventData | null>(null);
 
   // const handleChangeText = (e: NativeSyntheticEvent<OnChangeTextEvent>) => {
@@ -33,19 +34,19 @@ export default function App() {
   // };
 
   const handleFocus = () => {
-    ref.current?.focus();
+    inputRef.current?.focus();
   };
 
   const handleBlur = () => {
-    ref.current?.blur();
+    inputRef.current?.blur();
   };
 
   const handleSetValue = () => {
-    ref.current?.setValue('hello div');
+    inputRef.current?.setValue('hello div');
   };
 
   const handleSetSelection = () => {
-    ref.current?.setSelection(2, 9);
+    inputRef.current?.setSelection(2, 9);
   };
 
   const handleFocusEvent = () => {
@@ -77,14 +78,18 @@ export default function App() {
         )}
         <View style={styles.editor}>
           <TypeRichTextInput
-            ref={ref}
+            ref={inputRef}
             style={styles.editorInput}
             placeholder="custom textinput with paste support..."
             placeholderTextColor="rgb(0, 26, 114)"
             selectionColor="deepskyblue"
             cursorColor="dodgerblue"
             autoCapitalize="words"
-            onChangeText={(text) => console.log(text)}
+            onChangeText={(text: string) => {
+              console.log(text);
+              textRef.current = text;
+              inputRef.current?.setValue(text);
+            }}
             onFocus={handleFocusEvent}
             onBlur={handleBlurEvent}
             onChangeSelection={(e) => {
@@ -99,7 +104,7 @@ export default function App() {
               setImage(e);
               console.log(e);
             }}
-            defaultValue="my name is div"
+            defaultValue={textRef.current}
             keyboardAppearance="dark"
             lineHeight={22}
           />
@@ -130,6 +135,28 @@ export default function App() {
             </Pressable>
             <Pressable onPress={handleSetSelection} style={styles.button}>
               <Text style={styles.label2}>set selection</Text>
+            </Pressable>
+          </View>
+          <View style={styles.buttonStack}>
+            <Pressable
+              style={styles.button}
+              onPress={() => {
+                const text = textRef.current;
+                const start = 6; // before "world"
+                const end = 11;
+
+                const next =
+                  text.slice(0, start) +
+                  '*' +
+                  text.slice(start, end) +
+                  '*' +
+                  text.slice(end);
+
+                // this MUST preserve cursor after native fix
+                inputRef.current?.setValue(next);
+              }}
+            >
+              <Text style={styles.label2}>Wrap middle with * *</Text>
             </Pressable>
           </View>
         </View>

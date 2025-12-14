@@ -364,12 +364,25 @@ class TypeRichTextInputView : AppCompatEditText {
   fun setValue(value: CharSequence?) {
     if (value == null) return
 
+    val editText = this
+
+    // Save current selection BEFORE text change
+    val prevStart = editText.selectionStart
+    val prevEnd = editText.selectionEnd
+
     runAsATransaction {
-      setText(value.toString())
-      setSelection(text?.length ?: 0)
+      if (editText.text.toString() != value.toString()) {
+        setText(value.toString())
+      }
+
+      val len = editText.text?.length ?: 0
+      val start = prevStart.coerceIn(0, len)
+      val end = prevEnd.coerceIn(0, len)
+
+      setSelection(start, end)
     }
   }
-
+  
   fun setAutoFocus(autoFocus: Boolean) {
     this.autoFocus = autoFocus
   }
