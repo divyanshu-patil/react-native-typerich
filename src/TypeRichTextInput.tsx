@@ -59,6 +59,8 @@ export interface TypeRichTextInputRef {
   getNativeRef: () => any | null;
 }
 
+const isAndroid = Platform.OS === 'android';
+
 /**
  * TypeRichTextInput
  *
@@ -76,22 +78,22 @@ const TypeRichTextInput = forwardRef(
 
     useImperativeHandle(ref, () => ({
       focus: () => {
-        if (nativeRef.current) {
+        if (isAndroid && nativeRef.current) {
           Commands.focus(nativeRef.current);
         }
       },
       blur: () => {
-        if (nativeRef.current) {
+        if (isAndroid && nativeRef.current) {
           Commands.blur(nativeRef.current);
         }
       },
       setValue: (text: string) => {
-        if (nativeRef.current) {
+        if (isAndroid && nativeRef.current) {
           Commands.setValue(nativeRef.current, text);
         }
       },
       setSelection(start, end) {
-        if (nativeRef.current) {
+        if (isAndroid && nativeRef.current) {
           Commands.setSelection(nativeRef.current, start, end);
         }
       },
@@ -137,13 +139,25 @@ const TypeRichTextInput = forwardRef(
       });
     }
 
+    /* eslint-disable @typescript-eslint/no-unused-vars */
+    const {
+      // native-only / android-only props we never want on <View />
+      androidExperimentalSynchronousEvents,
+      onChangeSelection,
+      onChangeText,
+      onPasteImageData,
+      onFocus,
+      onBlur,
+
+      // everything else
+      ...restProps
+    } = props;
+    /* eslint-enable @typescript-eslint/no-unused-vars */
+
     return (
       <NativeTypeRichTextInput
-        androidExperimentalSynchronousEvents={
-          props.androidExperimentalSynchronousEvents
-        }
         ref={nativeRef}
-        {...props}
+        {...(isAndroid ? props : restProps)}
         onInputFocus={() => props.onFocus?.()}
         onInputBlur={() => props.onBlur?.()}
         onChangeText={handleOnChangeTextEvent}

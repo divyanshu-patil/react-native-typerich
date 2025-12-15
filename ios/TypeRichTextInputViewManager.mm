@@ -1,21 +1,27 @@
-
 #import <React/RCTViewManager.h>
-#import <React/RCTComponentViewFactory.h>
-#import "TypeRichTextInputView.h"
+#import <React/RCTUIManager.h>
+#import "RCTFabricComponentsPlugins.h"
 
-@interface TypeRichTextInputViewManager : NSObject <RCTComponentViewProtocol>
+@interface TypeRichTextInputViewManager : RCTViewManager
 @end
 
 @implementation TypeRichTextInputViewManager
 
-+ (NSString *)componentName
+RCT_EXPORT_MODULE(TypeRichTextInputView)
+
++ (BOOL)requiresMainQueueSetup
 {
-  return @"TypeRichTextInputView";
+    return NO;
 }
 
-+ (Class)componentViewClass
+- (UIView *)view
 {
-  return [TypeRichTextInputView class];
+    // For Paper (old architecture) - return a simple UIView
+    UIView *view = [[UIView alloc] init];
+    view.backgroundColor = [UIColor lightGrayColor];
+    return view;
 }
 
 @end
+
+Class<RCTComponentViewProtocol> TypeRichTextInputViewCls(void);

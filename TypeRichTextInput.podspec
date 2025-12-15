@@ -14,8 +14,7 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/divyanshu-patil/react-native-typerich.git", :tag => "#{s.version}" }
 
   # s.source_files = "ios/**/*.{h,m,mm,swift,cpp}"
-  s.source_files = []
-  s.private_header_files = "ios/**/*.h"
+  s.source_files = "ios/**/*.{h,m,mm,cpp}"
 
   install_modules_dependencies(s)
 end
