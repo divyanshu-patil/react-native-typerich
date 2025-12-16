@@ -35,6 +35,7 @@ import com.typerich.events.OnInputBlurEvent
 import com.typerich.events.OnInputFocusEvent
 import com.typerich.events.OnChangeSelectionEvent
 import com.typerich.events.OnPasteImageEvent
+import com.typerich.spans.SpanUtils
 import com.typerich.utils.EnumPasteSource
 import java.io.File
 import kotlin.math.ceil
@@ -108,6 +109,11 @@ class TypeRichTextInputView : AppCompatEditText {
       override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
         if (!isDuringTransaction) {
           if (isSettingTextFromJS) return
+
+          // span handling
+          val editable = editableText
+          SpanUtils.clearSpans(editable, start, start + count)
+          SpanUtils.addSpans(editable)
 
           val reactContext = context as ReactContext
           val surfaceId = UIManagerHelper.getSurfaceId(reactContext)
@@ -389,6 +395,10 @@ class TypeRichTextInputView : AppCompatEditText {
           newText.substring(0, minOf(prevStart, current.length))
 
         setText(newText)
+
+        val editable = editableText
+        SpanUtils.clearSpans(editable, 0, editable.length)
+        SpanUtils.addSpans(editable)
 
         val len = text?.length ?: 0
 
