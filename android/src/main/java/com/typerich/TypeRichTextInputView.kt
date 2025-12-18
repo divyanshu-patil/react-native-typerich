@@ -35,7 +35,7 @@ import com.typerich.events.OnInputBlurEvent
 import com.typerich.events.OnInputFocusEvent
 import com.typerich.events.OnChangeSelectionEvent
 import com.typerich.events.OnPasteImageEvent
-import com.typerich.spans.SpanUtils
+import com.typerich.spans.utils.SpanUtils
 import com.typerich.utils.EnumPasteSource
 import java.io.File
 import kotlin.math.ceil

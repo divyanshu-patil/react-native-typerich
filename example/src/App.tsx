@@ -84,7 +84,7 @@ export default function App() {
             placeholderTextColor="rgb(0, 26, 114)"
             selectionColor="deepskyblue"
             cursorColor="dodgerblue"
-            autoCapitalize="words"
+            autoCapitalize="sentences"
             onChangeText={(text: string) => {
               console.log(text);
               textRef.current = text;
