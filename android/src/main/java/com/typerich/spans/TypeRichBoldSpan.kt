@@ -3,19 +3,27 @@ package com.typerich.spans
 import android.graphics.Typeface
 import android.text.Editable
 import android.text.style.StyleSpan
+import com.typerich.spans.interfaces.ESpanPriority
+import com.typerich.spans.interfaces.ITypeRichInternalSpan
 import com.typerich.spans.interfaces.ITypeRichSpanRule
 import com.typerich.spans.utils.SpanUtils
 
-class TypeRichBoldSpan : ITypeRichSpanRule {
+class TypeRichBoldSpan : StyleSpan(Typeface.BOLD), ITypeRichSpanRule, ITypeRichInternalSpan {
   override val regex = Regex("""\*(.+?)\*""",setOf(RegexOption.DOT_MATCHES_ALL)) // *text*
 
-  override val spanClass = StyleSpan::class.java
+  override val spanClass = ITypeRichInternalSpan::class.java
+
+  override val priority: ESpanPriority = ESpanPriority.STYLING
+
 
   override fun apply(editable: Editable, match: MatchResult) {
     val (start, end) = SpanUtils.getRange(match)
 
+    // block styling inside semantic spans, must implement ITypeRichSemanticSpan
+    if (SpanUtils.hasSemanticSpan(editable, start, end)) return
+
     editable.setSpan(
-      StyleSpan(Typeface.BOLD),
+      TypeRichBoldSpan(),
       start,
       end,
       Editable.SPAN_EXCLUSIVE_EXCLUSIVE

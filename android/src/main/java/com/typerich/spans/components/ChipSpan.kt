@@ -4,12 +4,14 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
 import android.text.style.ReplacementSpan
+import com.typerich.spans.interfaces.ITypeRichInternalSpan
+import com.typerich.spans.interfaces.ITypeRichSemanticSpan
 
 class ChipSpan(private val backgroundColor: Int,
                private val textColor: Int,
                private val cornerRadius: Float,
                private val horizontalPadding: Float,
-               private val verticalPadding: Float): ReplacementSpan() {
+               private val verticalPadding: Float): ReplacementSpan(), ITypeRichInternalSpan, ITypeRichSemanticSpan {
   private val rect = RectF()
 
   override fun getSize(

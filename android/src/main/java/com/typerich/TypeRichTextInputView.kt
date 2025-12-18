@@ -110,11 +110,6 @@ class TypeRichTextInputView : AppCompatEditText {
         if (!isDuringTransaction) {
           if (isSettingTextFromJS) return
 
-          // span handling
-          val editable = editableText
-          SpanUtils.clearSpans(editable, start, start + count)
-          SpanUtils.addSpans(editable)
-
           val reactContext = context as ReactContext
           val surfaceId = UIManagerHelper.getSurfaceId(reactContext)
           val dispatcher =
@@ -132,7 +127,14 @@ class TypeRichTextInputView : AppCompatEditText {
         layoutManager.invalidateLayout()
 
       }
-      override fun afterTextChanged(s: Editable?) {}
+      override fun afterTextChanged(editable: Editable?) {
+        if (isSettingTextFromJS || isDuringTransaction) return
+        if (editable == null) return
+
+        // Normalize spans AFTER text + selection is stable
+        SpanUtils.clearSpans(editable,0,editable.length)
+        SpanUtils.addSpans(editable)
+      }
     })
   }
 

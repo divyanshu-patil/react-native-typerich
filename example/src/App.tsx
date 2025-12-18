@@ -26,8 +26,17 @@ import { useRef, useState } from 'react';
 
 export default function App() {
   const inputRef = useRef<TypeRichTextInputRef>(null);
-  const textRef = useRef('hello world');
   const [image, setImage] = useState<onPasteImageEventData | null>(null);
+
+  const defaultMessage = `hello world *this is _react-native-typerich_* library created by @div
+  it supports
+  *bold*
+  _italic_
+  ~strike~
+  @mentions
+  #channels `;
+
+  const textRef = useRef(defaultMessage);
 
   // const handleChangeText = (e: NativeSyntheticEvent<OnChangeTextEvent>) => {
   //   console.log('Text changed:', e?.nativeEvent.value);
@@ -99,7 +108,7 @@ export default function App() {
             //   ANDROID_EXPERIMENTAL_SYNCHRONOUS_EVENTS
             // }
             multiline
-            numberOfLines={4}
+            // numberOfLines={4}
             onPasteImageData={(e) => {
               setImage(e);
               console.log(e);
