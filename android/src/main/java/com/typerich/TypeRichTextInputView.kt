@@ -211,7 +211,12 @@ class TypeRichTextInputView : AppCompatEditText {
 
       // text
       val text = item.coerceToText(context).toString()
-      this.append(text)
+      val editable = editableText
+      val start = selectionStart.coerceAtLeast(0)
+      val end = selectionEnd.coerceAtLeast(0)
+
+      editable.replace(minOf(start, end), maxOf(start, end), text)
+
       return true
     }
 
