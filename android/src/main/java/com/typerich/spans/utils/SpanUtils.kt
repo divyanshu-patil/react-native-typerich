@@ -1,4 +1,4 @@
-package com.typerich.spans
+package com.typerich.spans.utils
 
 import android.text.Editable
 
@@ -20,4 +20,13 @@ object SpanUtils {
     }
   }
 
+  fun getRange(match: MatchResult): Pair<Int, Int> {
+    val full = match.groupValues[0]
+    val content = match.groupValues[1]
+
+    val start = match.range.first + full.indexOf(content)
+    val end = start + content.length
+
+    return start to end
+  }
 }

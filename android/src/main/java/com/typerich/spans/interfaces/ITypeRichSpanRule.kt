@@ -1,4 +1,4 @@
-package com.typerich.spans
+package com.typerich.spans.interfaces
 
 import android.text.Editable
 
