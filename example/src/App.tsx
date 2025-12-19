@@ -16,7 +16,7 @@ import {
   type onPasteImageEventData,
   type TypeRichTextInputRef,
 } from 'react-native-typerich';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 // Enabling this prop fixes input flickering while auto growing.
 // However, it's still experimental and not tested well.
@@ -63,6 +63,11 @@ export default function App() {
   //   console.log('selection event', e.nativeEvent);
   // };
 
+  useEffect(() => {
+    inputRef.current?.setValue('draft simulation test');
+    textRef.current = 'draft simulation test'; // Update textRef too
+  }, []);
+
   return (
     <>
       <ScrollView
@@ -86,7 +91,7 @@ export default function App() {
             cursorColor="dodgerblue"
             autoCapitalize="words"
             onChangeText={(text: string) => {
-              console.log(text);
+              console.log('text changed ========', text);
               textRef.current = text;
               inputRef.current?.setValue(text);
             }}

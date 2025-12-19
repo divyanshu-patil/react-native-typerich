@@ -13,6 +13,7 @@ import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
 import android.util.AttributeSet
+import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.MotionEvent
@@ -45,7 +46,6 @@ class TypeRichTextInputView : AppCompatEditText {
   lateinit var layoutManager: TypeRichTextInputViewLayoutManager
 
   var isDuringTransaction: Boolean = false
-  var isRemovingMany: Boolean = false
   var scrollEnabled: Boolean = true
 
   var experimentalSynchronousEvents: Boolean = false
@@ -60,10 +60,11 @@ class TypeRichTextInputView : AppCompatEditText {
   private var fontWeight: Int = ReactConstants.UNSET
   private var defaultValue: CharSequence? = null
   private var defaultValueDirty: Boolean = false
-  private var keyboardAppearance: String = "default"
+//  private var keyboardAppearance: String = "default" // used in ios only
   private var inputMethodManager: InputMethodManager? = null
   private var lineHeightPx: Int? = null
   private var isSettingTextFromJS = false
+  private var isInitialized = false
 
 
   constructor(context: Context) : super(context) {
@@ -106,8 +107,14 @@ class TypeRichTextInputView : AppCompatEditText {
       override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) { if (isSettingTextFromJS) return}
 
       override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-        if (!isDuringTransaction) {
-          if (isSettingTextFromJS) return
+        if (isSettingTextFromJS) return
+
+        if (!isInitialized) {
+          layoutManager.invalidateLayout()
+          return
+        }
+
+        if (!isDuringTransaction ) {
 
           val reactContext = context as ReactContext
           val surfaceId = UIManagerHelper.getSurfaceId(reactContext)
@@ -295,6 +302,7 @@ class TypeRichTextInputView : AppCompatEditText {
 
   override fun onSelectionChanged(selStart: Int, selEnd: Int) {
     super.onSelectionChanged(selStart, selEnd)
+    if (isDuringTransaction) return
 
     val reactContext = context as? ReactContext ?: return
     val dispatcher = UIManagerHelper.getEventDispatcherForReactTag(reactContext, id)
@@ -378,6 +386,9 @@ class TypeRichTextInputView : AppCompatEditText {
     if (current == newText) {
       return
     }
+
+    Log.d("SetValue","setvalue called with======= $newText")
+    Log.d("SetValue","current $current")
 
     isSettingTextFromJS = true
     try {
@@ -546,6 +557,8 @@ class TypeRichTextInputView : AppCompatEditText {
     updateTypeface()
     updateDefaultValue()
     applyLineHeight()
+
+    isInitialized = true
   }
 
   fun setDefaultValue(value: CharSequence?) {
@@ -556,7 +569,7 @@ class TypeRichTextInputView : AppCompatEditText {
   private fun updateDefaultValue() {
     if (!defaultValueDirty) return
     defaultValueDirty = false
-   setText(defaultValue?.toString() ?: "")
+    setValue(defaultValue)
   }
 
   private fun updateTypeface() {
