@@ -13,7 +13,6 @@ import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
 import android.util.AttributeSet
-import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.MotionEvent
@@ -386,9 +385,6 @@ class TypeRichTextInputView : AppCompatEditText {
     if (current == newText) {
       return
     }
-
-    Log.d("SetValue","setvalue called with======= $newText")
-    Log.d("SetValue","current $current")
 
     isSettingTextFromJS = true
     try {
