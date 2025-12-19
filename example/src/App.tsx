@@ -42,7 +42,10 @@ export default function App() {
   };
 
   const handleSetValue = () => {
-    inputRef.current?.setValue('hello div');
+    const multilineValue = `hello
+    div
+    multiline`;
+    inputRef.current?.setValue(multilineValue);
   };
 
   const handleSetSelection = () => {

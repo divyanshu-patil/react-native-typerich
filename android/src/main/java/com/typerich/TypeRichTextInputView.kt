@@ -418,6 +418,7 @@ class TypeRichTextInputView : AppCompatEditText {
       }
     } finally {
       isSettingTextFromJS = false
+      layoutManager.invalidateLayout()
     }
   }
 
