@@ -1,8 +1,6 @@
 name: Blank issue
 description: Use this template if none of the other templates fit
 title: ''
-labels: []
-assignees: []
 
 body:
   - type: markdown
