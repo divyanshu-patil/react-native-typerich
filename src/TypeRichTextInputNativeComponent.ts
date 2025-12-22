@@ -34,6 +34,7 @@ export interface onPasteImageEventData {
 
 export interface TypeRichTextInputNativeProps extends ViewProps {
   // base props
+  value?: string;
   autoFocus?: boolean;
   editable?: boolean;
   defaultValue?: string;
@@ -77,7 +78,7 @@ interface NativeCommands {
   // General commands
   focus: (viewRef: React.ElementRef<ComponentType>) => void;
   blur: (viewRef: React.ElementRef<ComponentType>) => void;
-  setValue: (viewRef: React.ElementRef<ComponentType>, text: string) => void;
+  setText: (viewRef: React.ElementRef<ComponentType>, text: string) => void;
   insertTextAt: (
     viewRef: React.ElementRef<ComponentType>,
     start: Int32,
@@ -96,7 +97,7 @@ export const Commands: NativeCommands = codegenNativeCommands<NativeCommands>({
     // General commands
     'focus',
     'blur',
-    'setValue',
+    'setText',
     'setSelection',
     'insertTextAt',
   ],

@@ -32,6 +32,7 @@ export default function App() {
     end: 0,
   });
   const [image, setImage] = useState<onPasteImageEventData | null>(null);
+  const [value, setValue] = useState<string>('');
 
   const multilineValue = `hello
     div
@@ -51,7 +52,7 @@ export default function App() {
 
   const handleSetValue = (value = 'default value') => {
     textRef.current = value;
-    inputRef.current?.setValue(value);
+    inputRef.current?.setText(value);
   };
 
   const handleSetSelection = () => {
@@ -73,8 +74,12 @@ export default function App() {
   // };
 
   useEffect(() => {
-    inputRef.current?.setValue('draft simulation test');
+    inputRef.current?.setText('draft simulation test');
     textRef.current = 'draft simulation test'; // Update textRef too
+    // inputRef.current?.setSelection(
+    //   textRef.current.length,
+    //   textRef.current.length
+    // );
   }, []);
 
   function handleSelectionChange(e: {
@@ -111,6 +116,7 @@ export default function App() {
         <View style={styles.editor}>
           <TypeRichTextInput
             ref={inputRef}
+            value={value}
             style={styles.editorInput}
             placeholder="custom textinput with paste support..."
             placeholderTextColor="rgb(0, 26, 114)"
@@ -120,7 +126,8 @@ export default function App() {
             onChangeText={(text: string) => {
               console.log('text changed ========', text);
               textRef.current = text;
-              inputRef.current?.setValue(text);
+              // setValue(text); // controlled by value
+              inputRef.current?.setText(text); // controlled by command
             }}
             onFocus={handleFocusEvent}
             onBlur={handleBlurEvent}
@@ -180,6 +187,21 @@ export default function App() {
           </View>
           <View style={styles.buttonStack}>
             <Pressable
+              onPress={() => {
+                console.log('setvalue');
+                console.log(value);
+                setValue('controlled value');
+              }}
+              style={styles.button}
+            >
+              <Text style={styles.label2}>set controlled Value</Text>
+            </Pressable>
+            <Pressable onPress={() => {}} style={styles.button}>
+              <Text style={styles.label2}>Todo</Text>
+            </Pressable>
+          </View>
+          <View style={styles.buttonStack}>
+            <Pressable
               style={styles.button}
               onPress={() => {
                 const text = textRef.current;
@@ -194,7 +216,7 @@ export default function App() {
                   text.slice(end);
 
                 // this MUST preserve cursor after native fix
-                inputRef.current?.setValue(next);
+                inputRef.current?.setText(next);
               }}
             >
               <Text style={styles.label2}>Wrap middle with * *</Text>
