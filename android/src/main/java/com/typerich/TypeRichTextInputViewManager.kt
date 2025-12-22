@@ -179,6 +179,10 @@ class TypeRichTextInputViewManager :
     view?.setValue(text)
   }
 
+  override fun insertTextAt(view: TypeRichTextInputView?,start:Int,end:Int, text:String) {
+    view?.insertTextAt(start,end, text)
+  }
+
   override fun setSelection(
     view: TypeRichTextInputView?,
     start: Int,
