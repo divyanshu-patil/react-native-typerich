@@ -303,6 +303,10 @@ class TypeRichTextInputView : AppCompatEditText {
     super.onSelectionChanged(selStart, selEnd)
     if (isDuringTransaction) return
 
+    dispatchSelectionChangeEvent(selStart,selEnd)
+  }
+
+  fun dispatchSelectionChangeEvent(selStart: Int, selEnd: Int){
     val reactContext = context as? ReactContext ?: return
     val dispatcher = UIManagerHelper.getEventDispatcherForReactTag(reactContext, id)
       ?: return
@@ -320,7 +324,6 @@ class TypeRichTextInputView : AppCompatEditText {
       )
     )
   }
-
 
   override fun clearFocus() {
     super.clearFocus()
@@ -420,6 +423,28 @@ class TypeRichTextInputView : AppCompatEditText {
       isSettingTextFromJS = false
       layoutManager.invalidateLayout()
     }
+  }
+
+  fun insertTextAt(start: Int, end: Int, insert: String) {
+    val editable = editableText ?: return
+
+    val safeStart = start.coerceIn(0, editable.length)
+    val safeEnd = end.coerceIn(0, editable.length)
+
+    var newCursor = safeStart
+
+    isSettingTextFromJS = true
+    try {
+      runAsATransaction {
+        editable.replace(safeStart, safeEnd, insert) // this will not emit selectionChange event cause of transaction
+        newCursor = safeStart + insert.length
+        setSelection(newCursor, newCursor)
+      }
+    } finally {
+      isSettingTextFromJS = false
+      layoutManager.invalidateLayout()
+    }
+    dispatchSelectionChangeEvent(newCursor,newCursor) // manually emit selectionChange event
   }
 
   fun setAutoFocus(autoFocus: Boolean) {

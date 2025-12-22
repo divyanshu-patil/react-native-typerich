@@ -78,6 +78,12 @@ interface NativeCommands {
   focus: (viewRef: React.ElementRef<ComponentType>) => void;
   blur: (viewRef: React.ElementRef<ComponentType>) => void;
   setValue: (viewRef: React.ElementRef<ComponentType>, text: string) => void;
+  insertTextAt: (
+    viewRef: React.ElementRef<ComponentType>,
+    start: Int32,
+    end: Int32,
+    text: string
+  ) => void;
   setSelection: (
     viewRef: React.ElementRef<ComponentType>,
     start: Int32,
@@ -92,6 +98,7 @@ export const Commands: NativeCommands = codegenNativeCommands<NativeCommands>({
     'blur',
     'setValue',
     'setSelection',
+    'insertTextAt',
   ],
 });
 

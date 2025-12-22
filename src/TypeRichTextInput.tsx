@@ -55,6 +55,7 @@ export interface TypeRichTextInputRef {
   focus: () => void;
   blur: () => void;
   setValue: (text: string) => void;
+  insertTextAt: (start: number, end: number, text: string) => void;
   setSelection: (start: number, end: number) => void;
   getNativeRef: () => any | null;
 }
@@ -95,6 +96,11 @@ const TypeRichTextInput = forwardRef(
       setSelection(start, end) {
         if (isAndroid && nativeRef.current) {
           Commands.setSelection(nativeRef.current, start, end);
+        }
+      },
+      insertTextAt: (start: number, end: number, text: string) => {
+        if (isAndroid && nativeRef.current) {
+          Commands.insertTextAt(nativeRef.current, start, end, text);
         }
       },
       getNativeRef: () => nativeRef.current,
