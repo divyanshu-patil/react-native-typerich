@@ -17,6 +17,7 @@ import {
   type TypeRichTextInputRef,
 } from 'react-native-typerich';
 import { useEffect, useRef, useState } from 'react';
+import type { OnChangeSelectionEvent } from '../../lib/typescript/src';
 
 // Enabling this prop fixes input flickering while auto growing.
 // However, it's still experimental and not tested well.
@@ -27,7 +28,15 @@ import { useEffect, useRef, useState } from 'react';
 export default function App() {
   const inputRef = useRef<TypeRichTextInputRef>(null);
   const textRef = useRef('hello world');
+  const selectionRef = useRef<{ start: number; end: number }>({
+    start: 0,
+    end: 0,
+  });
   const [image, setImage] = useState<onPasteImageEventData | null>(null);
+
+  const multilineValue = `hello
+    div
+    multiline`;
 
   // const handleChangeText = (e: NativeSyntheticEvent<OnChangeTextEvent>) => {
   //   console.log('Text changed:', e?.nativeEvent.value);
@@ -41,11 +50,9 @@ export default function App() {
     inputRef.current?.blur();
   };
 
-  const handleSetValue = () => {
-    const multilineValue = `hello
-    div
-    multiline`;
-    inputRef.current?.setValue(multilineValue);
+  const handleSetValue = (value = 'default value') => {
+    textRef.current = value;
+    inputRef.current?.setValue(value);
   };
 
   const handleSetSelection = () => {
@@ -70,6 +77,20 @@ export default function App() {
     inputRef.current?.setValue('draft simulation test');
     textRef.current = 'draft simulation test'; // Update textRef too
   }, []);
+
+  function handleSelectionChange(e: OnChangeSelectionEvent): void {
+    console.log('selectionChange called', e);
+    selectionRef.current = { start: e.start, end: e.end };
+  }
+
+  const handleInsertTextAtCursor = () => {
+    const textToInsert = 'Test';
+    inputRef.current?.insertTextAt(
+      selectionRef.current.start,
+      selectionRef.current.end,
+      textToInsert
+    );
+  };
 
   return (
     <>
@@ -100,9 +121,7 @@ export default function App() {
             }}
             onFocus={handleFocusEvent}
             onBlur={handleBlurEvent}
-            onChangeSelection={(e) => {
-              console.log('start', e);
-            }}
+            onChangeSelection={handleSelectionChange}
             // androidExperimentalSynchronousEvents={
             //   ANDROID_EXPERIMENTAL_SYNCHRONOUS_EVENTS
             // }
@@ -128,9 +147,9 @@ export default function App() {
           // multiline={false}
           // numberOfLines={2}
         />
-        <View>
+        <View style={styles.btnContainer}>
           <View style={styles.buttonStack}>
-            <Pressable onPress={handleFocus} style={styles.button}>
+            <Pressable onPress={handleFocus} style={[styles.button]}>
               <Text style={styles.label2}>Focus</Text>
             </Pressable>
             <Pressable onPress={handleBlur} style={styles.button}>
@@ -138,7 +157,18 @@ export default function App() {
             </Pressable>
           </View>
           <View style={styles.buttonStack}>
-            <Pressable onPress={handleSetValue} style={styles.button}>
+            <Pressable onPress={() => handleSetValue('')} style={styles.button}>
+              <Text style={styles.label2}>clear Text</Text>
+            </Pressable>
+            <Pressable onPress={handleInsertTextAtCursor} style={styles.button}>
+              <Text style={styles.label2}>insert "Test" at cursor</Text>
+            </Pressable>
+          </View>
+          <View style={styles.buttonStack}>
+            <Pressable
+              onPress={() => handleSetValue(multilineValue)}
+              style={styles.button}
+            >
               <Text style={styles.label2}>Set value to hello div</Text>
             </Pressable>
             <Pressable onPress={handleSetSelection} style={styles.button}>
@@ -267,6 +297,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
   },
+  btnContainer: {
+    rowGap: 16,
+  },
+
   content: {
     flexGrow: 1,
     padding: 16,
@@ -298,7 +332,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 15,
     borderRadius: 25,
-    marginVertical: 25,
   },
   valueButton: {
     width: '100%',
