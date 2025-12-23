@@ -74,12 +74,14 @@ export default function App() {
   // };
 
   useEffect(() => {
-    inputRef.current?.setText('draft simulation test');
-    textRef.current = 'draft simulation test'; // Update textRef too
+    const testText = 'draft simulation test';
+    inputRef.current?.setText(testText);
+    textRef.current = testText; // Update textRef too
     // inputRef.current?.setSelection(
     //   textRef.current.length,
     //   textRef.current.length
     // );
+    inputRef.current?.setSelection(testText.length, testText.length);
   }, []);
 
   function handleSelectionChange(e: {
@@ -118,11 +120,12 @@ export default function App() {
             ref={inputRef}
             value={value}
             style={styles.editorInput}
-            placeholder="custom textinput with paste support..."
+            placeholder="custom textinput"
             placeholderTextColor="rgb(0, 26, 114)"
             selectionColor="deepskyblue"
             cursorColor="dodgerblue"
             autoCapitalize="words"
+            autoFocus
             onChangeText={(text: string) => {
               console.log('text changed ========', text);
               textRef.current = text;
@@ -143,8 +146,13 @@ export default function App() {
             }}
             defaultValue={textRef.current}
             keyboardAppearance="dark"
-            lineHeight={22}
             editable={true}
+            lineHeight={22}
+            fontFamily="serif"
+            fontStyle="italic"
+            fontWeight={'700'}
+            fontSize={12}
+            color="darkgreen"
           />
         </View>
         <TextInput
