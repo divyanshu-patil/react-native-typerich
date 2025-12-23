@@ -53,6 +53,11 @@ class TypeRichTextInputViewManager :
     view?.setDefaultValue(value)
   }
 
+  @ReactProp(name = "value")
+  override fun setValue(view: TypeRichTextInputView?, value: String?) {
+    view?.setValue(value)
+  }
+
   @ReactProp(name = "color")
   override fun setColor(view: TypeRichTextInputView, value: Int?) {
     if (value != null) view.setTextColor(value)
@@ -175,7 +180,7 @@ class TypeRichTextInputViewManager :
     view?.clearFocus()
   }
 
-  override fun setValue(view: TypeRichTextInputView?, text: String) {
+  override fun setText(view: TypeRichTextInputView?, text: String) {
     view?.setValue(text)
   }
 
