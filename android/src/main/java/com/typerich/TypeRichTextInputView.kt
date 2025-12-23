@@ -496,6 +496,7 @@ class TypeRichTextInputView : AppCompatEditText {
     val sizePx = ceil(PixelUtil.toPixelFromSP(size))
     fontSize = sizePx
     setTextSize(TypedValue.COMPLEX_UNIT_PX, sizePx)
+    layoutManager.invalidateLayout()
   }
 
   fun setFontFamily(family: String?) {
