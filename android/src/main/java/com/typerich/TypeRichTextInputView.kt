@@ -64,7 +64,6 @@ class TypeRichTextInputView : AppCompatEditText {
   private var lineHeightPx: Int? = null
   private var isSettingTextFromJS = false
   private var isInitialized = false
-  private var hasFocusInternal = false
 
   constructor(context: Context) : super(context) {
     prepareComponent()
@@ -333,9 +332,6 @@ class TypeRichTextInputView : AppCompatEditText {
   override fun onFocusChanged(focused: Boolean, direction: Int, previouslyFocusedRect: Rect?) {
     super.onFocusChanged(focused, direction, previouslyFocusedRect)
 
-    if (hasFocusInternal == focused) return
-    hasFocusInternal = focused
-    
     val reactContext = context as ReactContext
     val surfaceId = UIManagerHelper.getSurfaceId(reactContext)
     val dispatcher = UIManagerHelper.getEventDispatcherForReactTag(reactContext, id)
