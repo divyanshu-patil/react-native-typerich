@@ -358,7 +358,8 @@ class TypeRichTextInputView : AppCompatEditText {
   fun requestFocusProgrammatically() {
     requestFocus()
     inputMethodManager?.showSoftInput(this, 0)
-    setSelection(text?.length ?: 0)
+//    setSelection(text?.length ?: 0)
+    setSelection(selectionStart,selectionEnd)
   }
 
   fun setMultiline(enabled: Boolean) {
