@@ -284,3 +284,12 @@ MIT
 ---
 
 Made with [create-react-native-library](https://github.com/callstack/react-native-builder-bob)
+
+## Credits
+
+- **Divyanshu Patil** – Author & maintainer
+- Built with help from the open-source community ❤️
+
+### special thanks to [Software-Mansion](https://github.com/software-mansion) for the custom shadow node code
+
+checkout [react-native-enriched](https://github.com/software-mansion/react-native-enriched) by [software-mansion](https://github.com/software-mansion)
