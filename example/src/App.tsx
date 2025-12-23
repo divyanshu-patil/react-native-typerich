@@ -144,6 +144,7 @@ export default function App() {
             defaultValue={textRef.current}
             keyboardAppearance="dark"
             lineHeight={22}
+            editable={true}
           />
         </View>
         <TextInput
@@ -196,7 +197,11 @@ export default function App() {
             >
               <Text style={styles.label2}>set controlled Value</Text>
             </Pressable>
-            <Pressable onPress={() => {}} style={styles.button}>
+            <Pressable
+              disabled
+              onPress={() => {}}
+              style={[styles.button, { backgroundColor: 'gray' }]}
+            >
               <Text style={styles.label2}>Todo</Text>
             </Pressable>
           </View>

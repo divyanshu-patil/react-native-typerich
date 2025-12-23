@@ -539,6 +539,10 @@ class TypeRichTextInputView : AppCompatEditText {
   }
 
   fun setSecureTextEntry(isSecure: Boolean) {
+    if (isSecure) {
+      setMultiline(false)
+      maxLines = 1
+    }
     transformationMethod =
       if (isSecure)
         android.text.method.PasswordTransformationMethod.getInstance()
