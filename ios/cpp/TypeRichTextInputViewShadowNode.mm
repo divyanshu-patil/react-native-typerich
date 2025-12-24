@@ -4,6 +4,7 @@
 #import <React/RCTShadowView+Layout.h>
 #import <react/utils/ManagedObjectWrapper.h>
 #import <yoga/Yoga.h>
+#import <React/RCTLog.h>
 
 namespace facebook::react {
 
@@ -55,6 +56,12 @@ Size TypeRichTextInputViewShadowNode::measureContent(
   RCTInternalGenericWeakWrapper *weakWrapper =
       (RCTInternalGenericWeakWrapper *)unwrapManagedObject(componentRef);
 
+      RCTLogInfo(
+        @"[TypeRichTextInput] minH=%f maxH=%f",
+        layoutConstraints.minimumSize.height,
+        layoutConstraints.maximumSize.height
+      );
+      
   if (weakWrapper != nullptr) {
     id componentObject = weakWrapper.object;
     TypeRichTextInputView *typedComponentObject =
@@ -74,8 +81,8 @@ Size TypeRichTextInputViewShadowNode::measureContent(
         });
       }
 
-      return {estimatedSize.width,
-              MIN(estimatedSize.height, layoutConstraints.maximumSize.height)};
+     return {estimatedSize.width,
+             MIN(estimatedSize.height, layoutConstraints.maximumSize.height)};
     }
   } else {
     __block CGSize estimatedSize;
@@ -93,8 +100,8 @@ Size TypeRichTextInputViewShadowNode::measureContent(
       });
     }
 
-    return {estimatedSize.width,
-            MIN(estimatedSize.height, layoutConstraints.maximumSize.height)};
+     return {estimatedSize.width,
+             MIN(estimatedSize.height, layoutConstraints.maximumSize.height)};
   }
 
   return Size();

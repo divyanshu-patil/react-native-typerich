@@ -1,9 +1,9 @@
 import { forwardRef, useImperativeHandle, useRef, type Ref } from 'react';
 
 import type { NativeSyntheticEvent } from 'react-native';
-import { Platform, View } from 'react-native';
+import { Platform } from 'react-native';
 
-import {
+import NativeTypeRichTextInput, {
   Commands,
   type OnChangeSelectionEvent,
   type OnChangeTextEvent,
@@ -11,15 +11,15 @@ import {
   type TypeRichTextInputNativeProps,
 } from './TypeRichTextInputNativeComponent';
 
-let NativeTypeRichTextInput: any;
+// let NativeTypeRichTextInput: any;
 
-if (Platform.OS === 'android') {
-  NativeTypeRichTextInput =
-    require('./TypeRichTextInputNativeComponent').default;
-} else {
-  // iOS fallback (temporary)
-  NativeTypeRichTextInput = View;
-}
+// if (Platform.OS === 'android') {
+//   NativeTypeRichTextInput =
+//     require('./TypeRichTextInputNativeComponent').default;
+// } else {
+//   // iOS fallback (temporary)
+//   NativeTypeRichTextInput = View;
+// }
 type MaybeNativeEvent<T> = T | { nativeEvent: T };
 
 export function normalizeEvent<T>(event: MaybeNativeEvent<T>): T {

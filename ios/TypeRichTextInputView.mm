@@ -4,6 +4,7 @@
 #import <react/renderer/components/TypeRichTextInputViewSpec/RCTComponentViewHelpers.h>
 #import "cpp/TypeRichTextInputViewComponentDescriptor.h"
 #import "RCTFabricComponentsPlugins.h"
+#import <React/RCTLog.h>
 
 using namespace facebook::react;
 
@@ -33,6 +34,9 @@ using namespace facebook::react;
 
 - (void)updateProps:(Props::Shared const &)props
            oldProps:(Props::Shared const &)oldProps {
+  RCTLogInfo(
+    @"[TypeRichTextInput] Hello"
+  );
   [super updateProps:props oldProps:oldProps];
 }
 
