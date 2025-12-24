@@ -124,7 +124,7 @@ export default function App() {
             placeholderTextColor="rgb(0, 26, 114)"
             selectionColor="deepskyblue"
             cursorColor="dodgerblue"
-            autoCapitalize="words"
+            autoCapitalize="sentences"
             autoFocus
             onChangeText={(text: string) => {
               console.log('text changed ========', text);

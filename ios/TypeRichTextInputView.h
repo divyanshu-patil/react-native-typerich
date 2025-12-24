@@ -3,10 +3,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface TypeRichTextInputView : RCTViewComponentView
+@interface TypeRichTextInputView : RCTViewComponentView <UITextViewDelegate>
 
 @property(nonatomic, assign) BOOL blockEmitting;
-
 - (CGSize)measureSize:(CGFloat)maxWidth;
 
 @end
