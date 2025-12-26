@@ -8,6 +8,7 @@ import {
   Pressable,
   TextInput,
   Image,
+  Platform,
 } from 'react-native';
 import {
   TypeRichTextInput,
@@ -148,10 +149,10 @@ export default function App() {
             keyboardAppearance="dark"
             editable={true}
             lineHeight={22}
-            fontFamily="serif"
+            fontFamily={Platform.select({ ios: 'georgia', android: 'serif' })}
             fontStyle="italic"
             fontWeight={'700'}
-            fontSize={23}
+            fontSize={24}
             color="darkgreen"
           />
         </View>
