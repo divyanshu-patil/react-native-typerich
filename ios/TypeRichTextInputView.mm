@@ -284,6 +284,14 @@ Class<RCTComponentViewProtocol> TypeRichTextInputViewCls(void) {
       NSBaselineOffsetAttributeName: @(baselineOffset)
     };
 
+    // Always update typingAttributes (safe)
+     _textView.typingAttributes = attributes;
+
+     // Do not touch attributedText during composition
+     if (_textView.markedTextRange != nil) {
+       return;
+     }
+    
     // Apply to existing text
     NSMutableAttributedString *attributedText =
       [[NSMutableAttributedString alloc]
