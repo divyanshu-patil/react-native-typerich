@@ -12,7 +12,7 @@
 
 // local utils
 #import "utils/StringUtils.h"
-#import "utils/TextUtils.h"
+#import "utils/TextInputUtils.h"
 
 using namespace facebook::react;
 
@@ -157,7 +157,65 @@ Class<RCTComponentViewProtocol> TypeRichTextInputViewCls(void) {
   if (oldProps == nullptr && newProps.autoFocus) {
     [_textView becomeFirstResponder];
   }
+  
+  // cursor color
+  if (!oldPropsPtr || newProps.cursorColor != oldPropsPtr->cursorColor) {
+    if (isColorMeaningful(newProps.cursorColor)) {
+      _textView.tintColor =
+        RCTUIColorFromSharedColor(newProps.cursorColor);
+    }
+  }
 
+  // selectionColor
+  if (!oldPropsPtr || newProps.selectionColor != oldPropsPtr->selectionColor) {
+    if (isColorMeaningful(newProps.selectionColor)) {
+      _textView.tintColor =
+        RCTUIColorFromSharedColor(newProps.selectionColor);
+    }
+  }
+
+  // autoCapitalise
+  if (!oldPropsPtr || newProps.autoCapitalize != oldPropsPtr->autoCapitalize) {
+    if (!newProps.autoCapitalize.empty()) {
+      _textView.autocapitalizationType =
+        AutocapitalizeFromString(
+          NSStringFromCppString(newProps.autoCapitalize)
+        );
+    }
+  }
+
+  // scrollEnabled
+  if (!oldPropsPtr || newProps.scrollEnabled != oldPropsPtr->scrollEnabled) {
+    _textView.scrollEnabled = newProps.scrollEnabled;
+  }
+
+  // multiline
+  if (!oldPropsPtr || newProps.multiline != oldPropsPtr->multiline) {
+    if (newProps.multiline) {
+      _textView.textContainer.maximumNumberOfLines = 0;
+    } else {
+      _textView.textContainer.maximumNumberOfLines = 1;
+    }
+  }
+  
+  // numberOfLines
+  if (!oldPropsPtr || newProps.numberOfLines != oldPropsPtr->numberOfLines) {
+    if (newProps.multiline && newProps.numberOfLines > 0) {
+      _textView.textContainer.maximumNumberOfLines =
+        newProps.numberOfLines;
+    }
+  }
+
+  // keyboardAppearance
+  if (!oldPropsPtr ||
+      newProps.keyboardAppearance != oldPropsPtr->keyboardAppearance) {
+
+    _textView.keyboardAppearance =
+      KeyboardAppearanceFromEnum(
+        newProps.keyboardAppearance
+      );
+  }
+  
 #pragma mark - Style Props
   
   // Text color

@@ -46,7 +46,7 @@ export interface TypeRichTextInputNativeProps extends ViewProps {
   scrollEnabled?: boolean;
   multiline?: boolean;
   numberOfLines?: Int32;
-  secureTextEntry?: boolean;
+  secureTextEntry?: boolean; // Android only
   keyboardAppearance?: WithDefault<'default' | 'light' | 'dark', 'default'>; // ios only
 
   // Todo
