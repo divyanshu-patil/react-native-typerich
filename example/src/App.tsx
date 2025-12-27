@@ -140,7 +140,7 @@ export default function App() {
             //   ANDROID_EXPERIMENTAL_SYNCHRONOUS_EVENTS
             // }
             multiline
-            numberOfLines={4}
+            numberOfLines={22}
             onPasteImageData={(e) => {
               setImage(e);
               console.log(e);
@@ -148,10 +148,10 @@ export default function App() {
             defaultValue={textRef.current}
             keyboardAppearance="dark"
             editable={true}
-            lineHeight={22}
-            fontFamily={Platform.select({ ios: 'georgia', android: 'serif' })}
+            lineHeight={2}
+            fontFamily={Platform.select({ ios: 'georgia', android: 'serif' })} // fontstyle won't work unless this is used
             fontStyle="italic"
-            fontWeight={'700'}
+            fontWeight={'200'}
             fontSize={24}
             color="darkgreen"
           />

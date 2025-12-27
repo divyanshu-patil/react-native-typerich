@@ -10,14 +10,11 @@
 #import <React/RCTConversions.h>
 #import <react/utils/ManagedObjectWrapper.h>
 
+// local utils
+#import "utils/StringUtils.h"
+#import "utils/TextUtils.h"
+
 using namespace facebook::react;
-
-#pragma mark - Helpers
-
-/// Convert C++ std::string (from Props) → NSString
-static inline NSString *NSStringFromCppString(const std::string &str) {
-  return str.empty() ? @"" : [NSString stringWithUTF8String:str.c_str()];
-}
 
 #pragma mark - Private interface
 
@@ -123,9 +120,9 @@ Class<RCTComponentViewProtocol> TypeRichTextInputViewCls(void) {
       ? std::static_pointer_cast<TypeRichTextInputViewProps const>(oldProps).get()
       : nullptr;
 
-  // ---------------------------
+#pragma mark - Base Props
+  
   // Text value (controlled)
-  // ---------------------------
   if (!oldPropsPtr || newProps.value != oldPropsPtr->value) {
     _textView.text = NSStringFromCppString(newProps.value);
   }
@@ -135,16 +132,14 @@ Class<RCTComponentViewProtocol> TypeRichTextInputViewCls(void) {
     _textView.text = NSStringFromCppString(newProps.defaultValue);
   }
 
-  // ---------------------------
   // Placeholder
-  // ---------------------------
   if (!oldPropsPtr || newProps.placeholder != oldPropsPtr->placeholder) {
     _placeholderLabel.text =
       NSStringFromCppString(newProps.placeholder);
     [self updatePlaceholderVisibility];
   }
 
-  // placeholder text color
+  // placeholderTextColor
   if (!oldPropsPtr || newProps.placeholderTextColor != oldPropsPtr->placeholderTextColor) {
     if (isColorMeaningful(newProps.placeholderTextColor)) {
       _placeholderColor =
@@ -152,70 +147,156 @@ Class<RCTComponentViewProtocol> TypeRichTextInputViewCls(void) {
       _placeholderLabel.textColor = _placeholderColor;
     }
   }
-
-
-  // ---------------------------
+  
   // Editable
-  // ---------------------------
   if (!oldPropsPtr || newProps.editable != oldPropsPtr->editable) {
     _textView.editable = newProps.editable;
   }
+  
+  // Auto focus
+  if (oldProps == nullptr && newProps.autoFocus) {
+    [_textView becomeFirstResponder];
+  }
 
-  // ---------------------------
+#pragma mark - Style Props
+  
   // Text color
-  // ---------------------------
   if (!oldPropsPtr || newProps.color != oldPropsPtr->color) {
     if (isColorMeaningful(newProps.color)) {
       _textView.textColor = RCTUIColorFromSharedColor(newProps.color);
     }
   }
 
-  // ---------------------------
-  // Font
-  // ---------------------------
-  // Check if font props changed
+  // Font Block ------------------------------------------------------------------
   BOOL fontChanged = !oldPropsPtr ||
                      newProps.fontSize != oldPropsPtr->fontSize ||
-                     newProps.fontFamily != oldPropsPtr->fontFamily;
+                     newProps.fontFamily != oldPropsPtr->fontFamily ||
+                     newProps.fontWeight != oldPropsPtr->fontWeight ||
+                     newProps.fontStyle != oldPropsPtr->fontStyle;
+
 
   if (fontChanged) {
-    // Extract fontSize (use 14 as default if not set or is 0)
-    CGFloat size = newProps.fontSize > 0 ? (CGFloat)newProps.fontSize : 14.0;
     
-    // Extract fontFamily
+    // Font size
+    CGFloat size =
+      newProps.fontSize > 0 ? (CGFloat)newProps.fontSize : 14.0;
+
+    // font family
     NSString *family = nil;
     if (!newProps.fontFamily.empty()) {
       family = NSStringFromCppString(newProps.fontFamily);
     }
 
-    // Create font
+    // Resolve font weight
+    // Values: "100"–"900", "normal", "bold
+    NSString *weightStr = nil;
+    if (!newProps.fontWeight.empty()) {
+      weightStr = NSStringFromCppString(newProps.fontWeight);
+    }
+
+    // font style
+    // Values: "italic" | "normal"
+    NSString *styleStr = @"normal";
+    if (!newProps.fontStyle.empty()) {
+      styleStr = NSStringFromCppString(newProps.fontStyle);
+    }
+
+    
+    // Create Base UIFont
     UIFont *font = nil;
+
     if (family) {
+      // Custom font family
       font = [UIFont fontWithName:family size:size];
+
       // Fallback if custom font not found
       if (!font) {
         NSLog(@"Font '%@' not found, using system font", family);
         font = [UIFont systemFontOfSize:size];
       }
     } else {
-      font = [UIFont systemFontOfSize:size];
+      // System font path with weight support
+      UIFontWeight weight =
+        weightStr ? FontWeightFromString(weightStr)
+                  : UIFontWeightRegular;
+
+      font = [UIFont systemFontOfSize:size weight:weight];
     }
 
-    // Apply to both textView and placeholder
+    // Apply fontStyle (italic / normal) with font descriptor
+    UIFontDescriptorSymbolicTraits traits =
+       font.fontDescriptor.symbolicTraits;
+
+     if ([styleStr isEqualToString:@"italic"]) {
+       traits |= UIFontDescriptorTraitItalic;
+     } else {
+       // Explicitly remove italic when switching back to "normal"
+       traits &= ~UIFontDescriptorTraitItalic;
+     }
+    UIFontDescriptor *descriptor =
+        [font.fontDescriptor fontDescriptorWithSymbolicTraits:traits];
+
+      if (descriptor) {
+        font = [UIFont fontWithDescriptor:descriptor size:size];
+      }
+    
+#pragma mark - Setting font
+    // Apply font to UITextView and placeholder
     _textView.font = font;
     _placeholderLabel.font = font;
-    
-    NSLog(@"Font updated: size=%.1f, family=%@", size, family ?: @"system");
-  }
 
+    NSLog(
+      @"Font updated: size=%.1f, family=%@, weight=%@, style=%@",
+      size,
+      family ?: @"system",
+      weightStr ?: @"regular",
+      styleStr ?: @"normal"
+    );
+  }
+  // End Font Block ------------------------------------------------------------------
   
-  // ---------------------------
-  // Auto focus
-  // ---------------------------
-  if (oldProps == nullptr && newProps.autoFocus) {
-    [_textView becomeFirstResponder];
+  //  lineheight
+  BOOL lineHeightChanged =
+    !oldPropsPtr || newProps.lineHeight != oldPropsPtr->lineHeight;
+
+  if (lineHeightChanged && newProps.lineHeight > 0) {
+    CGFloat lineHeight = newProps.lineHeight;
+    UIFont *font = _textView.font;
+
+    // do not go below fontsize's lineheight
+    if (lineHeight < font.lineHeight) {
+      lineHeight = font.lineHeight;
+    }
+
+    NSMutableParagraphStyle *paragraphStyle =
+      [[NSMutableParagraphStyle alloc] init];
+
+    paragraphStyle.minimumLineHeight = lineHeight;
+    paragraphStyle.maximumLineHeight = lineHeight;
+
+    // Baseline fix (prevents overlap)
+    CGFloat baselineOffset =
+      (lineHeight - font.lineHeight) / 2.0;
+
+    NSDictionary *attributes = @{
+      NSFontAttributeName: font,
+      NSParagraphStyleAttributeName: paragraphStyle,
+      NSBaselineOffsetAttributeName: @(baselineOffset)
+    };
+
+    // Apply to existing text
+    NSMutableAttributedString *attributedText =
+      [[NSMutableAttributedString alloc]
+        initWithString:_textView.text ?: @""
+            attributes:attributes];
+
+    _textView.attributedText = attributedText;
+
+    // Apply to future typing
+    _textView.typingAttributes = attributes;
   }
 
+#pragma mark - updating props
   // Update placeholder visibility
   [self updatePlaceholderVisibility];
   [self invalidateTextLayout];
