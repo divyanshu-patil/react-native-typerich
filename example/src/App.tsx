@@ -325,7 +325,7 @@ const ImageInfo = ({ image }: { image: any }) => {
             fontWeight: 'regular',
           }}
         >
-          {image.error?.message ?? 'no error'}
+          {image.error?.message || 'no error'}
         </Text>
       </Text>
     </View>

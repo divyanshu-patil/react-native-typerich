@@ -13,6 +13,7 @@
 // local utils
 #import "utils/StringUtils.h"
 #import "utils/TextInputUtils.h"
+#import "inputTextView/TypeRichUITextView.h"
 
 using namespace facebook::react;
 
@@ -68,7 +69,11 @@ Class<RCTComponentViewProtocol> TypeRichTextInputViewCls(void) {
     // ---------------------------
     // UITextView FIRST
     // ---------------------------
-    _textView = [[UITextView alloc] initWithFrame:CGRectZero];
+    TypeRichUITextView *tv =
+      [[TypeRichUITextView alloc] initWithFrame:CGRectZero];
+    tv.owner = self;
+    _textView = tv;
+
     _textView.delegate = self;
     _textView.scrollEnabled = YES;
     _textView.backgroundColor = UIColor.clearColor;
@@ -515,6 +520,7 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
 
 #pragma mark - UITextViewDelegate
 
+#pragma mark -- Text Changed event
 - (void)textViewDidChange:(UITextView *)textView {
   [self updatePlaceholderVisibility];
   // ---------------------------
@@ -539,6 +545,59 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
    if (textView.scrollEnabled) {
      [textView scrollRangeToVisible:textView.selectedRange];
    }
+}
+
+#pragma mark -- focus / blur event
+- (void)textViewDidBeginEditing:(UITextView *)textView {
+  auto emitter = [self getEventEmitter];
+  if (emitter) {
+    emitter->onInputFocus({});
+  }
+}
+
+- (void)textViewDidEndEditing:(UITextView *)textView {
+  auto emitter = [self getEventEmitter];
+  if (emitter) {
+    emitter->onInputBlur({});
+  }
+}
+
+#pragma mark -- Selection event
+
+- (void)textViewDidChangeSelection:(UITextView *)textView {
+  auto emitter = [self getEventEmitter];
+  if (!emitter) {
+    return;
+  }
+
+  NSRange range = textView.selectedRange;
+
+  emitter->onChangeSelection({
+    .start = (int)range.location,
+    .end   = (int)(range.location + range.length),
+    .text  = std::string(textView.text.UTF8String ?: "")
+  });
+}
+
+#pragma mark - Paste Image
+
+- (void)emitPasteImageEventWith:(NSString *)uri
+                              type:(NSString *)type
+                          fileName:(NSString *)fileName
+                          fileSize:(NSUInteger)fileSize {
+  auto emitter = [self getEventEmitter];
+  if (!emitter) {
+    return;
+  }
+
+  emitter->onPasteImage({
+    .uri = std::string(uri.UTF8String),
+    .type = std::string(type.UTF8String),
+    .fileName = std::string(fileName.UTF8String),
+    .fileSize = (double)fileSize,
+    .source =
+      TypeRichTextInputViewEventEmitter::OnPasteImageSource::Clipboard
+  });
 }
 
 #pragma mark - UIScrollViewDelegate

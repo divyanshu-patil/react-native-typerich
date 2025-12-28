@@ -12,4 +12,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+#ifdef __cplusplus
+// INTERNAL — do not use outside native layer
+@interface TypeRichTextInputView (Internal)
+- (void)emitPasteImageEventWith:(NSString *)uri
+                              type:(NSString *)type
+                          fileName:(NSString *)fileName
+                          fileSize:(NSUInteger)fileSize;
+@end
+#endif
+
 NS_ASSUME_NONNULL_END
