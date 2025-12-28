@@ -33,7 +33,7 @@ export default function App() {
     end: 0,
   });
   const [image, setImage] = useState<onPasteImageEventData | null>(null);
-  const [value, setValue] = useState<string>('');
+  const [value, setValue] = useState<string>('hhh');
 
   const multilineValue = `hello
     div
@@ -120,18 +120,19 @@ export default function App() {
           <TypeRichTextInput
             ref={inputRef}
             value={value}
+            // defaultValue={textRef.current}
             style={styles.editorInput}
             placeholder="custom textinput"
             placeholderTextColor="rgb(0, 26, 114)"
-            selectionColor="deepskyblue"
-            cursorColor="dodgerblue"
-            autoCapitalize="sentences"
+            selectionColor="green"
+            cursorColor="red"
+            autoCapitalize="words"
             autoFocus
             onChangeText={(text: string) => {
               console.log('text changed ========', text);
               textRef.current = text;
-              // setValue(text); // controlled by value
-              inputRef.current?.setText(text); // controlled by command
+              setValue(text); // controlled by value
+              // inputRef.current?.setText(text); // controlled by command
             }}
             onFocus={handleFocusEvent}
             onBlur={handleBlurEvent}
@@ -140,15 +141,15 @@ export default function App() {
             //   ANDROID_EXPERIMENTAL_SYNCHRONOUS_EVENTS
             // }
             multiline
-            numberOfLines={22}
+            // numberOfLines={5}
+            scrollEnabled
             onPasteImageData={(e) => {
               setImage(e);
               console.log(e);
             }}
-            defaultValue={textRef.current}
             keyboardAppearance="dark"
             editable={true}
-            lineHeight={2}
+            lineHeight={22}
             fontFamily={Platform.select({ ios: 'georgia', android: 'serif' })} // fontweight won't work unless this is used
             fontStyle="italic"
             fontWeight={'200'}
@@ -164,8 +165,8 @@ export default function App() {
             width: '100%',
             marginVertical: 20,
           }}
-          // multiline={false}
-          // numberOfLines={2}
+          multiline
+          numberOfLines={4}
         />
         <View style={styles.btnContainer}>
           <View style={styles.buttonStack}>
@@ -378,7 +379,7 @@ const styles = StyleSheet.create({
   editorInput: {
     marginTop: 24,
     width: '100%',
-    // maxHeight: 180,
+    maxHeight: 280,
     backgroundColor: 'gainsboro',
     // fontSize: 34,
     fontFamily: 'Nunito-Regular',

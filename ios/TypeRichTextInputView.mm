@@ -70,6 +70,10 @@ Class<RCTComponentViewProtocol> TypeRichTextInputViewCls(void) {
     _textView.textContainerInset = UIEdgeInsetsZero;
     _textView.textContainer.lineFragmentPadding = 0;
 
+    // KEY FIX: Allow text container to grow beyond visible bounds
+    _textView.textContainer.heightTracksTextView = NO;
+
+    
     // ---------------------------
     // Placeholder label (ONCE)
     // ---------------------------
@@ -187,25 +191,40 @@ Class<RCTComponentViewProtocol> TypeRichTextInputViewCls(void) {
   // scrollEnabled
   if (!oldPropsPtr || newProps.scrollEnabled != oldPropsPtr->scrollEnabled) {
     _textView.scrollEnabled = newProps.scrollEnabled;
+    _textView.showsVerticalScrollIndicator = newProps.scrollEnabled;
+    
+    // KEY FIX: Control text container height tracking
+    _textView.textContainer.heightTracksTextView = !newProps.scrollEnabled;
   }
 
   // multiline
   if (!oldPropsPtr || newProps.multiline != oldPropsPtr->multiline) {
-    if (newProps.multiline) {
+    // Do NOT set maximumNumberOfLines here - handle it in numberOfLines
+    // This prevents premature line limiting
+  }
+  
+  if (!oldPropsPtr ||
+        newProps.numberOfLines != oldPropsPtr->numberOfLines ||
+        newProps.multiline != oldPropsPtr->multiline ||
+      newProps.scrollEnabled != oldPropsPtr->scrollEnabled) {
+    
+    if (newProps.multiline && newProps.numberOfLines > 0) {
+      // KEY FIX: Only limit lines when scrolling is DISABLED
+      // When scrolling is enabled, all content should be laid out
+      if (!newProps.scrollEnabled) {
+        _textView.textContainer.maximumNumberOfLines = newProps.numberOfLines;
+      } else {
+        // Allow unlimited lines when scrolling
+        _textView.textContainer.maximumNumberOfLines = 0;
+      }
+    } else if (newProps.multiline) {
       _textView.textContainer.maximumNumberOfLines = 0;
     } else {
       _textView.textContainer.maximumNumberOfLines = 1;
     }
+    [self invalidateTextLayout];
   }
   
-  // numberOfLines
-  if (!oldPropsPtr || newProps.numberOfLines != oldPropsPtr->numberOfLines) {
-    if (newProps.multiline && newProps.numberOfLines > 0) {
-      _textView.textContainer.maximumNumberOfLines =
-        newProps.numberOfLines;
-    }
-  }
-
   // keyboardAppearance
   if (!oldPropsPtr ||
       newProps.keyboardAppearance != oldPropsPtr->keyboardAppearance) {
@@ -374,19 +393,31 @@ Class<RCTComponentViewProtocol> TypeRichTextInputViewCls(void) {
 /// Fabric calls this to measure height for given width
 - (CGSize)measureSize:(CGFloat)maxWidth {
   UIEdgeInsets inset = _textView.textContainerInset;
+  CGFloat availableWidth = MAX(0, maxWidth - inset.left - inset.right);
 
-  CGFloat availableWidth =
-    MAX(0, maxWidth - inset.left - inset.right);
+  // Get the props to check numberOfLines and scrollEnabled
+  if (_eventEmitter) {
+    auto props = std::static_pointer_cast<const TypeRichTextInputViewProps >(_props);
+    
+    // If scrollEnabled with numberOfLines, return fixed height
+    if (props->scrollEnabled && props->multiline && props->numberOfLines > 0) {
+      // Calculate height for specified number of lines
+      UIFont *font = _textView.font ?: [UIFont systemFontOfSize:14];
+      CGFloat lineHeight = font.lineHeight;
+      
+      // Apply custom lineHeight if set
+      if (props->lineHeight > 0) {
+        lineHeight = MAX(props->lineHeight, font.lineHeight);
+      }
+      
+      CGFloat height = lineHeight * props->numberOfLines;
+      return CGSizeMake(maxWidth, ceil(height));
+    }
+  }
 
-  CGSize fitting =
-    [_textView sizeThatFits:
-      CGSizeMake(availableWidth, CGFLOAT_MAX)];
-
-  // IMPORTANT:
-  // sizeThatFits already includes textContainerInset
-  CGFloat height = ceil(fitting.height);
-
-  return CGSizeMake(maxWidth, height);
+  // For non-scrollable or unlimited lines, measure actual content
+  CGSize fitting = [_textView sizeThatFits:CGSizeMake(availableWidth, CGFLOAT_MAX)];
+  return CGSizeMake(maxWidth, ceil(fitting.height));
 }
 
 #pragma mark - Layout invalidation
@@ -423,9 +454,16 @@ Class<RCTComponentViewProtocol> TypeRichTextInputViewCls(void) {
   _heightRevision++;
 
   auto selfRef = wrapManagedObjectWeakly(self);
-  _state->updateState(
-    TypeRichTextInputViewState(_heightRevision, selfRef)
-  );
+  dispatch_async(dispatch_get_main_queue(), ^{
+    if (self->_state == nullptr) {
+      return;
+    }
+
+    self->_heightRevision++;
+    self->_state->updateState(
+      TypeRichTextInputViewState(_heightRevision, selfRef)
+    );
+  });
 }
 
 #pragma mark - State (ShadowNode → View)
@@ -456,8 +494,16 @@ Class<RCTComponentViewProtocol> TypeRichTextInputViewCls(void) {
 
   // Update placeholder
   [self updatePlaceholderVisibility];
-
-  [self invalidateTextLayout];
+  // Only invalidate layout if not scrollable
+   // Scrollable views maintain fixed height
+   if (!textView.scrollEnabled) {
+     [self invalidateTextLayout];
+   }
+   
+   // Ensure cursor stays visible when scrolling
+   if (textView.scrollEnabled) {
+     [textView scrollRangeToVisible:textView.selectedRange];
+   }
 }
 
 #pragma mark - Placeholder helpers
@@ -479,6 +525,19 @@ Class<RCTComponentViewProtocol> TypeRichTextInputViewCls(void) {
 //  _placeholderLabel.frame =
 //    CGRectMake(0, 0, width, size.height);
 //}
+
+- (void)layoutSubviews {
+  [super layoutSubviews];
+  
+  // Ensure text view fills the parent bounds
+  _textView.frame = self.bounds;
+  
+  // Debug: Log frame and content size
+  NSLog(@"TextView frame: %@, contentSize: %@, maxLines: %ld",
+        NSStringFromCGRect(_textView.frame),
+        NSStringFromCGSize(_textView.contentSize),
+        (long)_textView.textContainer.maximumNumberOfLines);
+}
 
 #pragma mark - Event emitter
 
