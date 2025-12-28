@@ -20,7 +20,8 @@ using namespace facebook::react;
 
 @interface TypeRichTextInputView () <
   RCTTypeRichTextInputViewViewProtocol,
-  UITextViewDelegate
+  UITextViewDelegate,
+  UIScrollViewDelegate
 >
 @end
 
@@ -39,6 +40,9 @@ using namespace facebook::react;
 
   /// Incremented whenever text height changes to force re-measure
   int _heightRevision;
+  
+  /// Flag to prevent layout updates during touch handling
+  BOOL _isTouchInProgress;
 }
 
 #pragma mark - Fabric registration
@@ -59,6 +63,7 @@ Class<RCTComponentViewProtocol> TypeRichTextInputViewCls(void) {
 - (instancetype)initWithFrame:(CGRect)frame {
   if (self = [super initWithFrame:frame]) {
     _heightRevision = 0;
+    _isTouchInProgress = NO;
 
     // ---------------------------
     // UITextView FIRST
@@ -72,7 +77,9 @@ Class<RCTComponentViewProtocol> TypeRichTextInputViewCls(void) {
 
     // KEY FIX: Allow text container to grow beyond visible bounds
     _textView.textContainer.heightTracksTextView = NO;
-
+    
+    // Disable delaysContentTouches to prevent scroll conflicts
+    _textView.delaysContentTouches = NO;
     
     // ---------------------------
     // Placeholder label (ONCE)
@@ -94,22 +101,50 @@ Class<RCTComponentViewProtocol> TypeRichTextInputViewCls(void) {
       [_placeholderLabel.topAnchor constraintEqualToAnchor:_textView.topAnchor]
     ]];
     
-    // Also set initial font in initWithFrame if not already done:
-    // In initWithFrame method, after creating _textView and _placeholderLabel:
+    // Set initial font
     UIFont *defaultFont = [UIFont systemFontOfSize:14];
     _textView.font = defaultFont;
     _placeholderLabel.font = defaultFont;
 
     // ---------------------------
-    // Fabric contentView
+    // Add textView as subview (not contentView)
     // ---------------------------
-    self.contentView = _textView;
+    [self addSubview:_textView];
 
     [self updatePlaceholderVisibility];
   }
   return self;
 }
 
+#pragma mark - UIGestureRecognizerDelegate
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
+shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+  // Allow simultaneous recognition with RN's gesture recognizers
+  return YES;
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldBeRequiredToFailByGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+  // UITextView's pan gesture should not block other gestures
+  return NO;
+}
+
+#pragma mark - Touch Handling
+
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+  _isTouchInProgress = YES;
+  [super touchesBegan:touches withEvent:event];
+}
+
+- (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+  _isTouchInProgress = NO;
+  [super touchesEnded:touches withEvent:event];
+}
+
+- (void)touchesCancelled:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+  _isTouchInProgress = NO;
+  [super touchesCancelled:touches withEvent:event];
+}
 
 #pragma mark - Props (JS → Native)
 
@@ -424,7 +459,7 @@ Class<RCTComponentViewProtocol> TypeRichTextInputViewCls(void) {
 
 /// Forces UITextView to re-layout text and notifies Fabric to re-measure
 - (void)invalidateTextLayout {
-  if (!_textView) {
+  if (!_textView || _isTouchInProgress) {
     return;
   }
 
@@ -455,13 +490,13 @@ Class<RCTComponentViewProtocol> TypeRichTextInputViewCls(void) {
 
   auto selfRef = wrapManagedObjectWeakly(self);
   dispatch_async(dispatch_get_main_queue(), ^{
-    if (self->_state == nullptr) {
+    if (self->_state == nullptr || self->_isTouchInProgress) {
       return;
     }
 
     self->_heightRevision++;
     self->_state->updateState(
-      TypeRichTextInputViewState(_heightRevision, selfRef)
+      TypeRichTextInputViewState(self->_heightRevision, selfRef)
     );
   });
 }
@@ -506,25 +541,28 @@ Class<RCTComponentViewProtocol> TypeRichTextInputViewCls(void) {
    }
 }
 
+#pragma mark - UIScrollViewDelegate
+
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
+  _isTouchInProgress = YES;
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+  if (!decelerate) {
+    _isTouchInProgress = NO;
+  }
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+  _isTouchInProgress = NO;
+}
+
 #pragma mark - Placeholder helpers
 
 /// Show placeholder only when text is empty
 - (void)updatePlaceholderVisibility {
   _placeholderLabel.hidden = _textView.text.length > 0;
 }
-
-/// Layout placeholder to match text position
-//- (void)layoutSubviews {
-//  [super layoutSubviews];
-//
-//  CGFloat width = _textView.bounds.size.width;
-//  CGSize size =
-//    [_placeholderLabel sizeThatFits:
-//      CGSizeMake(width, CGFLOAT_MAX)];
-//
-//  _placeholderLabel.frame =
-//    CGRectMake(0, 0, width, size.height);
-//}
 
 - (void)layoutSubviews {
   [super layoutSubviews];

@@ -141,7 +141,7 @@ export default function App() {
             //   ANDROID_EXPERIMENTAL_SYNCHRONOUS_EVENTS
             // }
             multiline
-            // numberOfLines={5}
+            // numberOfLines={5} // prefer maxHeight on iOS
             scrollEnabled
             onPasteImageData={(e) => {
               setImage(e);
@@ -165,8 +165,8 @@ export default function App() {
             width: '100%',
             marginVertical: 20,
           }}
-          multiline
-          numberOfLines={4}
+          // multiline
+          // numberOfLines={4}
         />
         <View style={styles.btnContainer}>
           <View style={styles.buttonStack}>
