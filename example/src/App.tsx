@@ -55,7 +55,7 @@ export default function App() {
 
   const handleSetValue = (text = 'default value') => {
     textRef.current = text;
-    inputRef.current?.setText(value);
+    inputRef.current?.setText(text);
     inputRef.current?.setSelection(text.length, text.length);
   };
 
@@ -295,7 +295,23 @@ export default function App() {
   );
 }
 
-const ImageInfo = ({ image }: { image: any }) => {
+const ImageInfo = ({ image }: { image: onPasteImageEventData }) => {
+  function formatFileSize(bytes: number): string {
+    if (bytes <= 0) return '0 KB';
+
+    const KB = 1024;
+    const MB = KB * KB;
+
+    const sizeInMB = bytes / MB;
+
+    if (sizeInMB < 0.9) {
+      const sizeInKB = bytes / KB;
+      return `${sizeInKB.toFixed(1)} KB`;
+    }
+
+    return `${sizeInMB.toFixed(2)} MB`;
+  }
+
   return (
     <View>
       <Text style={{ color: 'red', fontWeight: 'bold' }}>
@@ -319,7 +335,7 @@ const ImageInfo = ({ image }: { image: any }) => {
             fontWeight: 'regular',
           }}
         >
-          {image.fileSize}
+          {image.fileSize} ({formatFileSize(image.fileSize)})
         </Text>
       </Text>
       <Text style={{ color: 'red', fontWeight: 'bold' }}>
