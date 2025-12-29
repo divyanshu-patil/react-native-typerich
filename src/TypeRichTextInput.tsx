@@ -142,21 +142,6 @@ const TypeRichTextInput = forwardRef(
       });
     }
 
-    /* eslint-disable @typescript-eslint/no-unused-vars */
-    const {
-      // native-only / android-only props we never want on <View />
-      androidExperimentalSynchronousEvents,
-      onChangeSelection,
-      onChangeText,
-      onPasteImageData,
-      onFocus,
-      onBlur,
-
-      // everything else
-      ...restProps
-    } = props;
-    /* eslint-enable @typescript-eslint/no-unused-vars */
-
     return (
       <NativeTypeRichTextInput
         ref={nativeRef}
