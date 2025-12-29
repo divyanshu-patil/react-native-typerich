@@ -120,6 +120,86 @@
   });
 }
 
+/// setText(text) — undoable, cursor-safe, IME-safe
+//- (void)setText:(NSString *)text
+//{
+//  UITextView *tv = _textView;
+//  TypeRichTextInputView *owner = _owner;
+//  if (!tv || !owner) return;
+//
+//  dispatch_async(dispatch_get_main_queue(), ^{
+//    // Never touch text while IME composing
+//    if (tv.markedTextRange) return;
+//
+//    NSString *newText = text ?: @"";
+//    NSString *oldText = tv.text ?: @"";
+//
+//    // No-op fast path
+//    if ([oldText isEqualToString:newText]) {
+//      return;
+//    }
+//
+//    owner.blockEmitting = YES;
+//
+//    // Save selection (cursor)
+//    NSRange oldSelection = tv.selectedRange;
+//
+//    // Compute minimal diff range
+//    NSRange replaceRange = DiffRange(oldText, newText);
+//
+//    NSInteger insertStart = replaceRange.location;
+//    NSInteger insertLength =
+//      newText.length - (oldText.length - replaceRange.length);
+//
+//    NSString *insertText =
+//      insertLength > 0
+//        ? [newText substringWithRange:
+//            NSMakeRange(insertStart, insertLength)]
+//        : @"";
+//
+//    // Convert NSRange → UITextRange
+//    UITextPosition *start =
+//      [tv positionFromPosition:tv.beginningOfDocument
+//                        offset:replaceRange.location];
+//    UITextPosition *end =
+//      [tv positionFromPosition:tv.beginningOfDocument
+//                        offset:NSMaxRange(replaceRange)];
+//
+//    if (!start || !end) {
+//      owner.blockEmitting = NO;
+//      return;
+//    }
+//
+//    UITextRange *uiRange =
+//      [tv textRangeFromPosition:start toPosition:end];
+//
+//    // THIS IS THE KEY LINE (undo-safe)
+//    [tv replaceRange:uiRange withText:insertText];
+//
+//    // ---- Restore selection correctly ----
+//    NSInteger delta = insertText.length - replaceRange.length;
+//
+//    NSInteger newLoc = oldSelection.location;
+//    NSInteger newLen = oldSelection.length;
+//
+//    if (oldSelection.location > replaceRange.location) {
+//      newLoc = MAX(0, newLoc + delta);
+//    }
+//
+//    NSInteger max = tv.text.length;
+//    newLoc = MIN(newLoc, max);
+//    newLen = MIN(newLen, max - newLoc);
+//
+//    tv.selectedRange = NSMakeRange(newLoc, newLen);
+//
+//    owner.blockEmitting = NO;
+//
+//    [owner updatePlaceholderVisibilityFromCommand];
+//    [owner invalidateTextLayoutFromCommand];
+//    [owner dispatchSelectionChangeIfNeeded];
+//  });
+//}
+
 
 /// setSelection(start, end)
 - (void)setSelectionStart:(NSInteger)start end:(NSInteger)end {
@@ -155,7 +235,8 @@
   dispatch_async(dispatch_get_main_queue(), ^{
     if ([owner isTouchInProgress]) return;
     if (tv.markedTextRange) return;
-
+//    if ([owner isHandlingUserInput]) return;
+    
     owner.blockEmitting = YES;
 
     UITextPosition *s =
@@ -199,4 +280,31 @@
     NSForegroundColorAttributeName: tv.textColor ?: UIColor.blackColor
   };
 }
+
+static NSRange DiffRange(NSString *oldText, NSString *newText) {
+  NSInteger oldLen = oldText.length;
+  NSInteger newLen = newText.length;
+
+  NSInteger start = 0;
+  while (start < oldLen &&
+         start < newLen &&
+         [oldText characterAtIndex:start] ==
+         [newText characterAtIndex:start]) {
+    start++;
+  }
+
+  NSInteger endOld = oldLen;
+  NSInteger endNew = newLen;
+
+  while (endOld > start &&
+         endNew > start &&
+         [oldText characterAtIndex:endOld - 1] ==
+         [newText characterAtIndex:endNew - 1]) {
+    endOld--;
+    endNew--;
+  }
+
+  return NSMakeRange(start, endOld - start);
+}
+
 @end

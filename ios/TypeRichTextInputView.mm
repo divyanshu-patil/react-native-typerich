@@ -51,6 +51,7 @@ using namespace facebook::react;
   
   /// Commands to call from js side
   TypeRichTextInputCommands *_commandHandler;
+//  BOOL _isHandlingUserInput;
 }
 
 #pragma mark - Fabric registration
@@ -590,6 +591,7 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
 - (void)textViewDidChange:(UITextView *)textView {
   
   if (self.blockEmitting) return;
+//  _isHandlingUserInput = YES;
   
   [self updatePlaceholderVisibility];
   
@@ -608,6 +610,10 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
   
   [self updatePlaceholderVisibilityFromCommand];
   [self invalidateTextLayoutDuringTyping];
+  
+//  dispatch_async(dispatch_get_main_queue(), ^{
+//    self->_isHandlingUserInput = NO;
+//  });
 }
 
 #pragma mark -- focus / blur event
@@ -804,4 +810,9 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
     .text  = std::string(tv.text.UTF8String ?: "")
   });
 }
+
+//- (BOOL)isHandlingUserInput {
+//  return _isHandlingUserInput;
+//}
+
 @end

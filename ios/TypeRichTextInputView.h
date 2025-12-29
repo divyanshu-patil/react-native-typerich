@@ -22,8 +22,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 // helpers used by commands
 - (BOOL)isTouchInProgress;
+//- (BOOL)isHandlingUserInput;
 - (void)invalidateTextLayoutFromCommand;
 - (void)updatePlaceholderVisibilityFromCommand;
 - (void)dispatchSelectionChangeIfNeeded;
+
 @end
 NS_ASSUME_NONNULL_END
