@@ -10,16 +10,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (CGSize)measureSize:(CGFloat)maxWidth;
 
-@end
-
-#ifdef __cplusplus
-// INTERNAL — do not use outside native layer
-@interface TypeRichTextInputView (Internal)
+// events
 - (void)emitPasteImageEventWith:(NSString *)uri
-                              type:(NSString *)type
-                          fileName:(NSString *)fileName
-                          fileSize:(NSUInteger)fileSize;
-@end
-#endif
+                           type:(NSString *)type
+                       fileName:(NSString *)fileName
+                       fileSize:(NSUInteger)fileSize;
 
+// commands
+- (void)handleCommand:(NSString *)commandName
+                 args:(NSArray *)args;
+
+// helpers used by commands
+- (BOOL)isTouchInProgress;
+- (void)invalidateTextLayoutFromCommand;
+- (void)updatePlaceholderVisibilityFromCommand;
+- (void)dispatchSelectionChangeIfNeeded;
+@end
 NS_ASSUME_NONNULL_END

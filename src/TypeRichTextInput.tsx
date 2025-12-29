@@ -1,7 +1,6 @@
 import { forwardRef, useImperativeHandle, useRef, type Ref } from 'react';
 
 import type { NativeSyntheticEvent } from 'react-native';
-import { Platform } from 'react-native';
 
 import NativeTypeRichTextInput, {
   Commands,
@@ -60,8 +59,6 @@ export interface TypeRichTextInputRef {
   getNativeRef: () => any | null;
 }
 
-const isAndroid = Platform.OS === 'android';
-
 /**
  * TypeRichTextInput
  *
@@ -79,27 +76,27 @@ const TypeRichTextInput = forwardRef(
 
     useImperativeHandle(ref, () => ({
       focus: () => {
-        if (isAndroid && nativeRef.current) {
+        if (nativeRef.current) {
           Commands.focus(nativeRef.current);
         }
       },
       blur: () => {
-        if (isAndroid && nativeRef.current) {
+        if (nativeRef.current) {
           Commands.blur(nativeRef.current);
         }
       },
       setText: (text: string) => {
-        if (isAndroid && nativeRef.current) {
+        if (nativeRef.current) {
           Commands.setText(nativeRef.current, text);
         }
       },
       setSelection(start, end) {
-        if (isAndroid && nativeRef.current) {
+        if (nativeRef.current) {
           Commands.setSelection(nativeRef.current, start, end);
         }
       },
       insertTextAt: (start: number, end: number, text: string) => {
-        if (isAndroid && nativeRef.current) {
+        if (nativeRef.current) {
           Commands.insertTextAt(nativeRef.current, start, end, text);
         }
       },
@@ -163,7 +160,7 @@ const TypeRichTextInput = forwardRef(
     return (
       <NativeTypeRichTextInput
         ref={nativeRef}
-        {...(isAndroid ? props : restProps)}
+        {...props}
         onInputFocus={() => props.onFocus?.()}
         onInputBlur={() => props.onBlur?.()}
         onChangeText={handleOnChangeTextEvent}

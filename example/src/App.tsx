@@ -44,10 +44,12 @@ export default function App() {
   // };
 
   const handleFocus = () => {
+    console.log('focus commands');
     inputRef.current?.focus();
   };
 
   const handleBlur = () => {
+    console.log('blur commands');
     inputRef.current?.blur();
   };
 
@@ -95,12 +97,17 @@ export default function App() {
   }
 
   const handleInsertTextAtCursor = () => {
-    const textToInsert = 'Test';
-    inputRef.current?.insertTextAt(
-      selectionRef.current.start,
-      selectionRef.current.end,
-      textToInsert
-    );
+    const insert = 'Test';
+
+    const { start, end } = selectionRef.current;
+    const currentText = textRef.current ?? '';
+
+    const nextText =
+      currentText.slice(0, start) + insert + currentText.slice(end);
+
+    textRef.current = nextText;
+
+    inputRef.current?.insertTextAt(start, end, insert);
   };
 
   return (
@@ -119,8 +126,8 @@ export default function App() {
         <View style={styles.editor}>
           <TypeRichTextInput
             ref={inputRef}
-            value={value}
-            // defaultValue={textRef.current}
+            // value={value}
+            defaultValue={textRef.current}
             style={styles.editorInput}
             placeholder="custom textinput"
             placeholderTextColor="rgb(0, 26, 114)"
@@ -131,8 +138,8 @@ export default function App() {
             onChangeText={(text: string) => {
               console.log('text changed ========', text);
               textRef.current = text;
-              setValue(text); // controlled by value
-              // inputRef.current?.setText(text); // controlled by command
+              // setValue(text); // controlled by value
+              inputRef.current?.setText(text); // controlled by command
             }}
             onFocus={handleFocusEvent}
             onBlur={handleBlurEvent}
@@ -232,6 +239,21 @@ export default function App() {
 
                 // this MUST preserve cursor after native fix
                 inputRef.current?.setText(next);
+                let { start: selStart, end: selEnd } = selectionRef.current;
+
+                if (selStart <= start) {
+                  // before wrap → no change
+                } else if (selStart < end) {
+                  // inside wrapped range → +1
+                  selStart += 1;
+                  selEnd += 1;
+                } else {
+                  // at or after end → +2
+                  selStart += 2;
+                  selEnd += 2;
+                }
+
+                inputRef.current?.setSelection(selStart, selEnd);
               }}
             >
               <Text style={styles.label2}>Wrap middle with * *</Text>

@@ -15,6 +15,10 @@
 #import "utils/TextInputUtils.h"
 #import "inputTextView/TypeRichUITextView.h"
 
+// local modules for code splitting
+#import "modules/commands/TypeRichTextInputCommands.h"
+
+
 using namespace facebook::react;
 
 #pragma mark - Private interface
@@ -44,6 +48,9 @@ using namespace facebook::react;
   
   /// Flag to prevent layout updates during touch handling
   BOOL _isTouchInProgress;
+  
+  /// Commands to call from js side
+  TypeRichTextInputCommands *_commandHandler;
 }
 
 #pragma mark - Fabric registration
@@ -86,6 +93,11 @@ Class<RCTComponentViewProtocol> TypeRichTextInputViewCls(void) {
     // Disable delaysContentTouches to prevent scroll conflicts
     _textView.delaysContentTouches = NO;
     
+    // initialise commandHandler
+    _commandHandler =
+      [[TypeRichTextInputCommands alloc] initWithTextView:_textView
+                                                    owner:self];
+    
     // ---------------------------
     // Placeholder label (ONCE)
     // ---------------------------
@@ -111,11 +123,9 @@ Class<RCTComponentViewProtocol> TypeRichTextInputViewCls(void) {
     _textView.font = defaultFont;
     _placeholderLabel.font = defaultFont;
 
-    // ---------------------------
     // Add textView as subview (not contentView)
-    // ---------------------------
     [self addSubview:_textView];
-
+  
     [self updatePlaceholderVisibility];
   }
   return self;
@@ -518,14 +528,16 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
     >(state);
 }
 
-#pragma mark - UITextViewDelegate
+#pragma mark - Events (UITextViewDelegate)
 
 #pragma mark -- Text Changed event
 - (void)textViewDidChange:(UITextView *)textView {
+  
+  if (self.blockEmitting) return;
+  
   [self updatePlaceholderVisibility];
-  // ---------------------------
+  
   // Emit JS onChangeText
-  // ---------------------------
   auto emitter = [self getEventEmitter];
   if (emitter) {
     emitter->onChangeText({
@@ -565,6 +577,8 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
 #pragma mark -- Selection event
 
 - (void)textViewDidChangeSelection:(UITextView *)textView {
+  if (self.blockEmitting) return;
+  
   auto emitter = [self getEventEmitter];
   if (!emitter) {
     return;
@@ -599,6 +613,49 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
       TypeRichTextInputViewEventEmitter::OnPasteImageSource::Clipboard
   });
 }
+
+#pragma mark - Commands
+
+- (void)handleCommand:(const NSString *)commandName
+                 args:(const NSArray *)args{
+  if (!_commandHandler) {
+    return;
+  }
+  
+  if ([commandName isEqualToString:@"focus"]) {
+    [_commandHandler focus];
+    return;
+  }
+
+  if ([commandName isEqualToString:@"blur"]) {
+    [_commandHandler blur];
+    return;
+  }
+  
+  if ([commandName isEqualToString:@"setText"]) {
+      NSString *text = args.count > 0 ? args[0] : @"";
+      [_commandHandler setText:text];
+      return;
+  }
+
+  if ([commandName isEqualToString:@"setSelection"]) {
+    if (args.count >= 2) {
+      [_commandHandler setSelectionStart:[args[0] integerValue]
+                                     end:[args[1] integerValue]];
+    }
+    return;
+  }
+
+  if ([commandName isEqualToString:@"insertTextAt"]) {
+    if (args.count >= 3) {
+      [_commandHandler insertTextAtStart:[args[0] integerValue]
+                                     end:[args[1] integerValue]
+                                    text:args[2]];
+    }
+    return;
+  }
+}
+
 
 #pragma mark - UIScrollViewDelegate
 
@@ -649,4 +706,51 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
   return std::make_shared<TypeRichTextInputViewEventEmitter>(emitter);
 }
 
+#pragma mark - Helpers
+
+- (BOOL)isTouchInProgress {
+  return _isTouchInProgress;
+}
+
+- (void)invalidateTextLayoutFromCommand {
+  if (_isTouchInProgress) {
+    return;
+  }
+
+  // layout invalidation after setting text via commands
+  [self invalidateTextLayout];
+}
+
+- (void)updatePlaceholderVisibilityFromCommand {
+  if (_isTouchInProgress) {
+    return;
+  }
+
+  // placeholder updation after setting text via commands
+  [self updatePlaceholderVisibility];
+}
+
+- (void)dispatchSelectionChangeIfNeeded {
+  if (self.blockEmitting) {
+    return;
+  }
+
+  auto emitter = [self getEventEmitter];
+  if (!emitter) {
+    return;
+  }
+
+  UITextView *tv = _textView;
+  if (!tv) {
+    return;
+  }
+
+  NSRange range = tv.selectedRange;
+
+  emitter->onChangeSelection({
+    .start = (int)range.location,
+    .end   = (int)(range.location + range.length),
+    .text  = std::string(tv.text.UTF8String ?: "")
+  });
+}
 @end
