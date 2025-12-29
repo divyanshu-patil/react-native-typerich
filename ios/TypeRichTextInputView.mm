@@ -178,7 +178,22 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
   
   // Text value (controlled)
   if (!oldPropsPtr || newProps.value != oldPropsPtr->value) {
-    _textView.text = NSStringFromCppString(newProps.value);
+    NSString *newText = NSStringFromCppString(newProps.value);
+    NSString *currentText = _textView.text ?: @"";
+
+    // Do NOT overwrite while user is editing
+    if (_textView.isFirstResponder) {
+      // Only update if text is actually different
+      if (![currentText isEqualToString:newText]) {
+        // DO NOTHING — let native drive text
+        // Selection stability > strict control
+      }
+    } else {
+      if (![currentText isEqualToString:newText]) {
+        _textView.text = newText;
+      }
+    }
+
   }
 
   // defaultValue (mount only)
@@ -425,7 +440,22 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
         initWithString:_textView.text ?: @""
             attributes:attributes];
 
-    _textView.attributedText = attributedText;
+    _textView.typingAttributes = attributes;
+
+    if (!_textView.isFirstResponder &&
+        _textView.markedTextRange == nil) {
+
+      NSRange sel = _textView.selectedRange;
+
+      NSMutableAttributedString *attr =
+        [[NSMutableAttributedString alloc]
+          initWithString:_textView.text ?: @""
+              attributes:attributes];
+
+      _textView.attributedText = attr;
+      _textView.selectedRange = sel;
+    }
+
 
     // Apply to future typing
     _textView.typingAttributes = attributes;
@@ -474,7 +504,9 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
 
 /// Forces UITextView to re-layout text and notifies Fabric to re-measure
 - (void)invalidateTextLayout {
-  if (!_textView || _isTouchInProgress) {
+  if (!_textView ||
+      _isTouchInProgress ||
+      _textView.isFirstResponder) {
     return;
   }
 
@@ -516,6 +548,30 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
   });
 }
 
+- (void)invalidateTextLayoutDuringTyping {
+  if (!_textView || _isTouchInProgress) {
+    return;
+  }
+
+  if (_state == nullptr) {
+    return;
+  }
+
+  _heightRevision++;
+
+  auto selfRef = wrapManagedObjectWeakly(self);
+  dispatch_async(dispatch_get_main_queue(), ^{
+    if (self->_state == nullptr) {
+      return;
+    }
+
+    self->_state->updateState(
+      TypeRichTextInputViewState(self->_heightRevision, selfRef)
+    );
+  });
+}
+
+
 #pragma mark - State (ShadowNode → View)
 
 /// Store state reference so we can update it later
@@ -545,18 +601,13 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
     });
   }
 
-  // Update placeholder
-  [self updatePlaceholderVisibility];
-  // Only invalidate layout if not scrollable
-   // Scrollable views maintain fixed height
-   if (!textView.scrollEnabled) {
-     [self invalidateTextLayout];
-   }
-   
    // Ensure cursor stays visible when scrolling
    if (textView.scrollEnabled) {
      [textView scrollRangeToVisible:textView.selectedRange];
    }
+  
+  [self updatePlaceholderVisibilityFromCommand];
+  [self invalidateTextLayoutDuringTyping];
 }
 
 #pragma mark -- focus / blur event

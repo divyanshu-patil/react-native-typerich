@@ -56,6 +56,7 @@ export default function App() {
   const handleSetValue = (value = 'default value') => {
     textRef.current = value;
     inputRef.current?.setText(value);
+    inputRef.current?.setSelection(value.length, value.length);
   };
 
   const handleSetSelection = () => {
