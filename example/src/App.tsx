@@ -53,10 +53,10 @@ export default function App() {
     inputRef.current?.blur();
   };
 
-  const handleSetValue = (value = 'default value') => {
-    textRef.current = value;
+  const handleSetValue = (text = 'default value') => {
+    textRef.current = text;
     inputRef.current?.setText(value);
-    inputRef.current?.setSelection(value.length, value.length);
+    inputRef.current?.setSelection(text.length, text.length);
   };
 
   const handleSetSelection = () => {
@@ -111,6 +111,23 @@ export default function App() {
     inputRef.current?.insertTextAt(start, end, insert);
   };
 
+  function handleFastTypingProgrammatically() {
+    const randomWords = ['hii', 'hello', ' ', 'my name is', 'test', 'div'];
+    let i = 0;
+
+    const interval = setInterval(() => {
+      if (i >= 100) {
+        clearInterval(interval);
+        return;
+      }
+
+      const index = Math.floor(Math.random() * randomWords.length);
+      handleSetValue(textRef.current + randomWords[index]);
+
+      i++;
+    }, 100); // 50ms
+  }
+
   return (
     <>
       <ScrollView
@@ -162,7 +179,7 @@ export default function App() {
             fontStyle="italic"
             fontWeight={'200'}
             fontSize={24}
-            color="darkgreen"
+            color="indigo"
           />
         </View>
         <TextInput
@@ -216,11 +233,13 @@ export default function App() {
               <Text style={styles.label2}>set controlled Value</Text>
             </Pressable>
             <Pressable
-              disabled
-              onPress={() => {}}
-              style={[styles.button, { backgroundColor: 'gray' }]}
+              onPress={() => {
+                // works only with the programmatic setText use
+                handleFastTypingProgrammatically();
+              }}
+              style={[styles.button]}
             >
-              <Text style={styles.label2}>Todo</Text>
+              <Text style={styles.label2}>very Fast Typing</Text>
             </Pressable>
           </View>
           <View style={styles.buttonStack}>

@@ -18,5 +18,9 @@ UITextAutocapitalizationType AutocapitalizeFromString(NSString *value);
 UIKeyboardAppearance KeyboardAppearanceFromEnum(
   facebook::react::TypeRichTextInputViewKeyboardAppearance value
 );
+
+static inline BOOL isComposingText(UITextView *textView) {
+  return textView.markedTextRange != nil;
+}
 NS_ASSUME_NONNULL_END
 

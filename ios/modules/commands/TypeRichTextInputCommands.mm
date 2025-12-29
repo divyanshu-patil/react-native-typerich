@@ -64,55 +64,59 @@
   TypeRichTextInputView *owner = _owner;
   if (!tv || !owner) return;
 
-  dispatch_async(dispatch_get_main_queue(), ^{
-    if (tv.markedTextRange) return;
 
-    owner.blockEmitting = YES;
+    dispatch_async(dispatch_get_main_queue(), ^{
+      if (tv.markedTextRange) return;
+      NSString *newText = text ?: @"";
 
-    NSString *newText = text ?: @"";
+      owner.blockEmitting = YES;
 
-    // Capture cursor offset
-    UITextRange *selection = tv.selectedTextRange;
-    NSInteger cursorOffset = 0;
+      NSTextStorage *storage = tv.textStorage;
 
-    if (selection) {
-      cursorOffset =
-        [tv offsetFromPosition:tv.beginningOfDocument
-                    toPosition:selection.start];
-    }
+      NSRange oldSelection = tv.selectedRange;
 
-    // Preserve typing attributes
-    NSDictionary *attrs = tv.typingAttributes;
-    if (!attrs && tv.textStorage.length > 0) {
-      attrs = [tv.textStorage attributesAtIndex:0 effectiveRange:NULL];
-    }
-    if (attrs) {
-      tv.typingAttributes = attrs;
-    }
+      [storage beginEditing];
+      
+      NSDictionary *attrs = [self baseAttributesForTextView:tv];
 
-    // Replace all text
-    UITextRange *fullRange =
-      [tv textRangeFromPosition:tv.beginningOfDocument
-                     toPosition:tv.endOfDocument];
+      NSAttributedString *attrText =
+        [[NSAttributedString alloc] initWithString:newText
+                                        attributes:attrs];
 
-    [tv replaceRange:fullRange withText:newText];
+      [storage beginEditing];
+      [storage setAttributedString:attrText];
+      [storage endEditing];
 
-    // Restore cursor (clamped)
-    NSInteger safeOffset = MIN(cursorOffset, newText.length);
-    UITextPosition *pos =
-      [tv positionFromPosition:tv.beginningOfDocument
-                        offset:safeOffset];
+      [storage endEditing];
 
-    if (pos) {
-      tv.selectedTextRange =
-        [tv textRangeFromPosition:pos toPosition:pos];
-    }
+      // Clamp & restore selection
+      NSInteger max = newText.length;
+      NSInteger loc = MIN(oldSelection.location, max);
+      NSInteger len = MIN(oldSelection.length, max - loc);
+      tv.selectedRange = NSMakeRange(loc, len);
 
-    owner.blockEmitting = NO;
+      owner.blockEmitting = NO;
 
-    [owner updatePlaceholderVisibilityFromCommand];
-    [owner invalidateTextLayoutFromCommand];
-    [owner dispatchSelectionChangeIfNeeded];
+      [owner updatePlaceholderVisibilityFromCommand];
+      [owner invalidateTextLayoutFromCommand];
+      [owner dispatchSelectionChangeIfNeeded];
+//
+//    // Restore cursor (clamped)
+//    NSInteger safeOffset = MIN(cursorOffset, newText.length);
+//    UITextPosition *pos =
+//      [tv positionFromPosition:tv.beginningOfDocument
+//                        offset:safeOffset];
+//
+//    if (pos) {
+//      tv.selectedTextRange =
+//        [tv textRangeFromPosition:pos toPosition:pos];
+//    }
+//
+//    owner.blockEmitting = NO;
+//
+//    [owner updatePlaceholderVisibilityFromCommand];
+//    [owner invalidateTextLayoutFromCommand];
+//    [owner dispatchSelectionChangeIfNeeded];
   });
 }
 
@@ -179,5 +183,20 @@
     [owner invalidateTextLayoutFromCommand];
     [owner dispatchSelectionChangeIfNeeded];
   });
+}
+
+- (NSDictionary *)baseAttributesForTextView:(UITextView *)tv {
+  if (tv.typingAttributes.count > 0) {
+    return tv.typingAttributes;
+  }
+
+  if (tv.textStorage.length > 0) {
+    return [tv.textStorage attributesAtIndex:0 effectiveRange:nil];
+  }
+
+  return @{
+    NSFontAttributeName: tv.font ?: [UIFont systemFontOfSize:14],
+    NSForegroundColorAttributeName: tv.textColor ?: UIColor.blackColor
+  };
 }
 @end
