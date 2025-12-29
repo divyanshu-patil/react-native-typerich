@@ -8,6 +8,7 @@ import {
   Pressable,
   TextInput,
   Image,
+  Platform,
 } from 'react-native';
 import {
   TypeRichTextInput,
@@ -32,7 +33,7 @@ export default function App() {
     end: 0,
   });
   const [image, setImage] = useState<onPasteImageEventData | null>(null);
-  const [value, setValue] = useState<string>('');
+  const [value, setValue] = useState<string>('hhh');
 
   const multilineValue = `hello
     div
@@ -43,16 +44,19 @@ export default function App() {
   // };
 
   const handleFocus = () => {
+    console.log('focus commands');
     inputRef.current?.focus();
   };
 
   const handleBlur = () => {
+    console.log('blur commands');
     inputRef.current?.blur();
   };
 
-  const handleSetValue = (value = 'default value') => {
-    textRef.current = value;
-    inputRef.current?.setText(value);
+  const handleSetValue = (text = 'default value') => {
+    textRef.current = text;
+    inputRef.current?.setText(text);
+    inputRef.current?.setSelection(text.length, text.length);
   };
 
   const handleSetSelection = () => {
@@ -94,13 +98,35 @@ export default function App() {
   }
 
   const handleInsertTextAtCursor = () => {
-    const textToInsert = 'Test';
-    inputRef.current?.insertTextAt(
-      selectionRef.current.start,
-      selectionRef.current.end,
-      textToInsert
-    );
+    const insert = 'Test';
+
+    const { start, end } = selectionRef.current;
+    const currentText = textRef.current ?? '';
+
+    const nextText =
+      currentText.slice(0, start) + insert + currentText.slice(end);
+
+    textRef.current = nextText;
+
+    inputRef.current?.insertTextAt(start, end, insert);
   };
+
+  function handleFastTypingProgrammatically() {
+    const randomWords = ['hii', 'hello', ' ', 'my name is', 'test', 'div'];
+    let i = 0;
+
+    const interval = setInterval(() => {
+      if (i >= 100) {
+        clearInterval(interval);
+        return;
+      }
+
+      const index = Math.floor(Math.random() * randomWords.length);
+      handleSetValue(textRef.current + randomWords[index]);
+
+      i++;
+    }, 100); // 50ms
+  }
 
   return (
     <>
@@ -118,12 +144,13 @@ export default function App() {
         <View style={styles.editor}>
           <TypeRichTextInput
             ref={inputRef}
-            value={value}
+            // value={value}
+            defaultValue={textRef.current}
             style={styles.editorInput}
             placeholder="custom textinput"
             placeholderTextColor="rgb(0, 26, 114)"
-            selectionColor="deepskyblue"
-            cursorColor="dodgerblue"
+            selectionColor="green"
+            cursorColor="red"
             autoCapitalize="words"
             autoFocus
             onChangeText={(text: string) => {
@@ -139,20 +166,20 @@ export default function App() {
             //   ANDROID_EXPERIMENTAL_SYNCHRONOUS_EVENTS
             // }
             multiline
-            numberOfLines={4}
+            // numberOfLines={5} // prefer maxHeight on iOS
+            scrollEnabled
             onPasteImageData={(e) => {
               setImage(e);
               console.log(e);
             }}
-            defaultValue={textRef.current}
             keyboardAppearance="dark"
             editable={true}
             lineHeight={22}
-            fontFamily="serif"
+            fontFamily={Platform.select({ ios: 'georgia', android: 'serif' })} // fontweight won't work unless this is used
             fontStyle="italic"
-            fontWeight={'700'}
-            fontSize={12}
-            color="darkgreen"
+            fontWeight={'200'}
+            fontSize={24}
+            color="indigo"
           />
         </View>
         <TextInput
@@ -163,8 +190,8 @@ export default function App() {
             width: '100%',
             marginVertical: 20,
           }}
-          // multiline={false}
-          // numberOfLines={2}
+          // multiline
+          // numberOfLines={4}
         />
         <View style={styles.btnContainer}>
           <View style={styles.buttonStack}>
@@ -206,11 +233,13 @@ export default function App() {
               <Text style={styles.label2}>set controlled Value</Text>
             </Pressable>
             <Pressable
-              disabled
-              onPress={() => {}}
-              style={[styles.button, { backgroundColor: 'gray' }]}
+              onPress={() => {
+                // works only with the programmatic setText use
+                handleFastTypingProgrammatically();
+              }}
+              style={[styles.button]}
             >
-              <Text style={styles.label2}>Todo</Text>
+              <Text style={styles.label2}>very Fast Typing</Text>
             </Pressable>
           </View>
           <View style={styles.buttonStack}>
@@ -230,6 +259,21 @@ export default function App() {
 
                 // this MUST preserve cursor after native fix
                 inputRef.current?.setText(next);
+                let { start: selStart, end: selEnd } = selectionRef.current;
+
+                if (selStart <= start) {
+                  // before wrap → no change
+                } else if (selStart < end) {
+                  // inside wrapped range → +1
+                  selStart += 1;
+                  selEnd += 1;
+                } else {
+                  // at or after end → +2
+                  selStart += 2;
+                  selEnd += 2;
+                }
+
+                inputRef.current?.setSelection(selStart, selEnd);
               }}
             >
               <Text style={styles.label2}>Wrap middle with * *</Text>
@@ -251,7 +295,23 @@ export default function App() {
   );
 }
 
-const ImageInfo = ({ image }: { image: any }) => {
+const ImageInfo = ({ image }: { image: onPasteImageEventData }) => {
+  function formatFileSize(bytes: number): string {
+    if (bytes <= 0) return '0 KB';
+
+    const KB = 1024;
+    const MB = KB * KB;
+
+    const sizeInMB = bytes / MB;
+
+    if (sizeInMB < 0.9) {
+      const sizeInKB = bytes / KB;
+      return `${sizeInKB.toFixed(1)} KB`;
+    }
+
+    return `${sizeInMB.toFixed(2)} MB`;
+  }
+
   return (
     <View>
       <Text style={{ color: 'red', fontWeight: 'bold' }}>
@@ -275,7 +335,7 @@ const ImageInfo = ({ image }: { image: any }) => {
             fontWeight: 'regular',
           }}
         >
-          {image.fileSize}
+          {image.fileSize} ({formatFileSize(image.fileSize)})
         </Text>
       </Text>
       <Text style={{ color: 'red', fontWeight: 'bold' }}>
@@ -323,7 +383,7 @@ const ImageInfo = ({ image }: { image: any }) => {
             fontWeight: 'regular',
           }}
         >
-          {image.error?.message ?? 'no error'}
+          {image.error?.message || 'no error'}
         </Text>
       </Text>
     </View>
@@ -377,12 +437,12 @@ const styles = StyleSheet.create({
   editorInput: {
     marginTop: 24,
     width: '100%',
-    // maxHeight: 180,
+    maxHeight: 280,
     backgroundColor: 'gainsboro',
     // fontSize: 34,
     fontFamily: 'Nunito-Regular',
-    paddingVertical: 12,
-    paddingHorizontal: 14,
+    // paddingVertical: 12,
+    // paddingHorizontal: 14,
   },
   scrollPlaceholder: {
     marginTop: 24,

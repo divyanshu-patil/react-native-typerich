@@ -1,9 +1,8 @@
 import { forwardRef, useImperativeHandle, useRef, type Ref } from 'react';
 
 import type { NativeSyntheticEvent } from 'react-native';
-import { Platform, View } from 'react-native';
 
-import {
+import NativeTypeRichTextInput, {
   Commands,
   type OnChangeSelectionEvent,
   type OnChangeTextEvent,
@@ -11,15 +10,15 @@ import {
   type TypeRichTextInputNativeProps,
 } from './TypeRichTextInputNativeComponent';
 
-let NativeTypeRichTextInput: any;
+// let NativeTypeRichTextInput: any;
 
-if (Platform.OS === 'android') {
-  NativeTypeRichTextInput =
-    require('./TypeRichTextInputNativeComponent').default;
-} else {
-  // iOS fallback (temporary)
-  NativeTypeRichTextInput = View;
-}
+// if (Platform.OS === 'android') {
+//   NativeTypeRichTextInput =
+//     require('./TypeRichTextInputNativeComponent').default;
+// } else {
+//   // iOS fallback (temporary)
+//   NativeTypeRichTextInput = View;
+// }
 type MaybeNativeEvent<T> = T | { nativeEvent: T };
 
 export function normalizeEvent<T>(event: MaybeNativeEvent<T>): T {
@@ -60,8 +59,6 @@ export interface TypeRichTextInputRef {
   getNativeRef: () => any | null;
 }
 
-const isAndroid = Platform.OS === 'android';
-
 /**
  * TypeRichTextInput
  *
@@ -79,27 +76,27 @@ const TypeRichTextInput = forwardRef(
 
     useImperativeHandle(ref, () => ({
       focus: () => {
-        if (isAndroid && nativeRef.current) {
+        if (nativeRef.current) {
           Commands.focus(nativeRef.current);
         }
       },
       blur: () => {
-        if (isAndroid && nativeRef.current) {
+        if (nativeRef.current) {
           Commands.blur(nativeRef.current);
         }
       },
       setText: (text: string) => {
-        if (isAndroid && nativeRef.current) {
+        if (nativeRef.current) {
           Commands.setText(nativeRef.current, text);
         }
       },
       setSelection(start, end) {
-        if (isAndroid && nativeRef.current) {
+        if (nativeRef.current) {
           Commands.setSelection(nativeRef.current, start, end);
         }
       },
       insertTextAt: (start: number, end: number, text: string) => {
-        if (isAndroid && nativeRef.current) {
+        if (nativeRef.current) {
           Commands.insertTextAt(nativeRef.current, start, end, text);
         }
       },
@@ -145,25 +142,10 @@ const TypeRichTextInput = forwardRef(
       });
     }
 
-    /* eslint-disable @typescript-eslint/no-unused-vars */
-    const {
-      // native-only / android-only props we never want on <View />
-      androidExperimentalSynchronousEvents,
-      onChangeSelection,
-      onChangeText,
-      onPasteImageData,
-      onFocus,
-      onBlur,
-
-      // everything else
-      ...restProps
-    } = props;
-    /* eslint-enable @typescript-eslint/no-unused-vars */
-
     return (
       <NativeTypeRichTextInput
         ref={nativeRef}
-        {...(isAndroid ? props : restProps)}
+        {...props}
         onInputFocus={() => props.onFocus?.()}
         onInputBlur={() => props.onBlur?.()}
         onChangeText={handleOnChangeTextEvent}

@@ -2449,8 +2449,7 @@ PODS:
     - React-perflogger (= 0.83.0)
     - React-utils (= 0.83.0)
     - SocketRocket
-  - SocketRocket (0.7.1)
-  - TypeRichTextInput (0.1.10):
+  - ReactNativeTypeRich (1.1.1):
     - boost
     - DoubleConversion
     - fast_float
@@ -2478,6 +2477,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
+  - SocketRocket (0.7.1)
   - Yoga (0.0.0)
 
 DEPENDENCIES:
@@ -2558,8 +2558,8 @@ DEPENDENCIES:
   - ReactAppDependencyProvider (from `build/generated/ios/ReactAppDependencyProvider`)
   - ReactCodegen (from `build/generated/ios/ReactCodegen`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
+  - ReactNativeTypeRich (from `../..`)
   - SocketRocket (~> 0.7.1)
-  - TypeRichTextInput (from `../..`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -2720,7 +2720,7 @@ EXTERNAL SOURCES:
     :path: build/generated/ios/ReactCodegen
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
-  TypeRichTextInput:
+  ReactNativeTypeRich:
     :path: "../.."
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
@@ -2802,8 +2802,8 @@ SPEC CHECKSUMS:
   ReactAppDependencyProvider: ebcf3a78dc1bcdf054c9e8d309244bade6b31568
   ReactCodegen: 11c08ff43a62009d48c71de000352e4515918801
   ReactCommon: 424cc34cf5055d69a3dcf02f3436481afb8b0f6f
+  ReactNativeTypeRich: 11271dfea8f942192be22384369f24f0c4cdf5ba
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
-  TypeRichTextInput: 8d48184140751812859bb561d2bc245754cd3c5d
   Yoga: 6ca93c8c13f56baeec55eb608577619b17a4d64e
 
 PODFILE CHECKSUM: 32064aec2e4fd956051ae18c71720479742bc76a
