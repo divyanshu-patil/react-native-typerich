@@ -769,7 +769,7 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
   }
 
   // layout invalidation after setting text via commands
-  [self invalidateTextLayout];
+  [self invalidateTextLayoutDuringTyping];
 }
 
 - (void)updatePlaceholderVisibilityFromCommand {
