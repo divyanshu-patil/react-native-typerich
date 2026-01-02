@@ -67,6 +67,8 @@
 
     dispatch_async(dispatch_get_main_queue(), ^{
       if (tv.markedTextRange) return;
+      if (owner.isUserTyping) return;
+
       NSString *newText = text ?: @"";
 
       owner.blockEmitting = YES;
