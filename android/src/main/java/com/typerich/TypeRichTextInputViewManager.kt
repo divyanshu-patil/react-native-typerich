@@ -145,6 +145,11 @@ class TypeRichTextInputViewManager :
     view?.setLineHeightReact(lineHeight)
   }
 
+  @ReactProp(name = "disableImagePasting")
+  override fun setDisableImagePasting(view: TypeRichTextInputView?, value: Boolean) {
+   view?.setDisableImagePasting(value)
+  }
+
   override fun onAfterUpdateTransaction(view: TypeRichTextInputView) {
     super.onAfterUpdateTransaction(view)
     view.afterUpdateTransaction()

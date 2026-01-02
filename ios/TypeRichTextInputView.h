@@ -26,6 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)invalidateTextLayoutFromCommand;
 - (void)updatePlaceholderVisibilityFromCommand;
 - (void)dispatchSelectionChangeIfNeeded;
+- (BOOL)isDisableImagePasting;
 
 @end
 NS_ASSUME_NONNULL_END

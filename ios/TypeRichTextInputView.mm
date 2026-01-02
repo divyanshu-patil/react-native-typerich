@@ -52,6 +52,9 @@ using namespace facebook::react;
   /// Commands to call from js side
   TypeRichTextInputCommands *_commandHandler;
 //  BOOL _isHandlingUserInput;
+  
+  /// Disabling Image Pasing
+  BOOL _disableImagePasting;
 }
 
 #pragma mark - Fabric registration
@@ -124,6 +127,8 @@ Class<RCTComponentViewProtocol> TypeRichTextInputViewCls(void) {
     _textView.font = defaultFont;
     _placeholderLabel.font = defaultFont;
 
+    _disableImagePasting = NO;
+    
     // Add textView as subview (not contentView)
     [self addSubview:_textView];
   
@@ -299,6 +304,11 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
       KeyboardAppearanceFromEnum(
         newProps.keyboardAppearance
       );
+  }
+  
+  // disableImagePasting
+  if (!oldPropsPtr || newProps.disableImagePasting != oldPropsPtr->disableImagePasting) {
+    _disableImagePasting = newProps.disableImagePasting;
   }
   
 #pragma mark - Style Props
@@ -815,4 +825,7 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
 //  return _isHandlingUserInput;
 //}
 
+- (BOOL)isDisableImagePasting{
+  return _disableImagePasting;
+}
 @end

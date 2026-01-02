@@ -13,7 +13,17 @@
 - (void)paste:(id)sender {
   UIPasteboard *pb = UIPasteboard.generalPasteboard;
 
-  if (pb.hasImages) {
+  if ([self.owner isDisableImagePasting] &&
+      pb.hasImages &&
+      !pb.hasStrings) {
+    return;
+  }
+
+  if (
+    ![self.owner isDisableImagePasting]
+    && pb.hasImages
+  ) {
+    
     UIImage *image = pb.image;
     if (!image) {
       [super paste:sender];
@@ -53,7 +63,11 @@
 
 - (BOOL)canPasteItemProviders:(NSArray<NSItemProvider *> *)itemProviders {
   for (NSItemProvider *provider in itemProviders) {
-    if ([provider hasItemConformingToTypeIdentifier:@"public.text"] ||
+    if ([provider hasItemConformingToTypeIdentifier:@"public.text"]) {
+        return YES;
+      }
+
+    if (![self.owner isDisableImagePasting] &&
         [provider hasItemConformingToTypeIdentifier:@"public.image"]) {
       return YES;
     }
@@ -65,6 +79,13 @@
   if (action == @selector(paste:)) {
     UIPasteboard *pb = UIPasteboard.generalPasteboard;
 
+    if (
+      [self.owner isDisableImagePasting] &&
+      pb.hasImages &&
+      !pb.hasStrings) {
+        return NO;
+    }
+    
     // Allow paste if there is text OR image
     if (pb.hasStrings || pb.hasImages) {
       return YES;

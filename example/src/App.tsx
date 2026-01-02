@@ -180,6 +180,7 @@ export default function App() {
             fontWeight={'200'}
             fontSize={24}
             color="indigo"
+            disableImagePasting={false}
           />
         </View>
         <TextInput

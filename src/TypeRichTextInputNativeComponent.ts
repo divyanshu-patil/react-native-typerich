@@ -50,7 +50,7 @@ export interface TypeRichTextInputNativeProps extends ViewProps {
   keyboardAppearance?: WithDefault<'default' | 'light' | 'dark', 'default'>; // ios only
 
   // Todo
-  // disableImagePasting?: boolean
+  disableImagePasting?: boolean;
 
   // event callbacks
   onInputFocus?: DirectEventHandler<null>;
