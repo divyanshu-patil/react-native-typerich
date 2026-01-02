@@ -7,6 +7,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface TypeRichTextInputView : RCTViewComponentView <UITextViewDelegate>
 
 @property(nonatomic, assign) BOOL blockEmitting;
+@property (atomic, assign) BOOL isUserTyping;
+@property (atomic, assign) CFTimeInterval lastTypingTime;
 
 - (CGSize)measureSize:(CGFloat)maxWidth;
 

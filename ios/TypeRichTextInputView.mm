@@ -604,6 +604,9 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
   if (self.blockEmitting) return;
 //  _isHandlingUserInput = YES;
   
+  self.isUserTyping = YES;
+  self.lastTypingTime = CACurrentMediaTime();
+  
   [self updatePlaceholderVisibility];
   
   // Emit JS onChangeText
@@ -646,6 +649,8 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
 
 - (void)textViewDidChangeSelection:(UITextView *)textView {
   if (self.blockEmitting) return;
+  
+  self.isUserTyping = NO;
   
   auto emitter = [self getEventEmitter];
   if (!emitter) {
