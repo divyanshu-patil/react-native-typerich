@@ -3,7 +3,6 @@ import {
   View,
   StyleSheet,
   Text,
-  // type NativeSyntheticEvent,
   ScrollView,
   Pressable,
   TextInput,
@@ -12,8 +11,6 @@ import {
 } from 'react-native';
 import {
   TypeRichTextInput,
-  // type OnChangeTextEvent,
-  // type OnChangeSelectionEvent,
   type onPasteImageEventData,
   type TypeRichTextInputRef,
 } from 'react-native-typerich';
@@ -80,6 +77,7 @@ export default function App() {
   useEffect(() => {
     const testText = 'draft simulation test';
     inputRef.current?.setText(testText);
+    // setValue(testText);
     textRef.current = testText; // Update textRef too
     // inputRef.current?.setSelection(
     //   textRef.current.length,
@@ -125,7 +123,7 @@ export default function App() {
       handleSetValue(textRef.current + randomWords[index]);
 
       i++;
-    }, 100); // 50ms
+    }, 100); // 100ms
   }
 
   return (
@@ -155,6 +153,7 @@ export default function App() {
             autoFocus
             onChangeText={(text: string) => {
               console.log('text changed ========', text);
+              console.log('value  ========', value);
               textRef.current = text;
               // setValue(text); // controlled by value
               inputRef.current?.setText(text); // controlled by command
@@ -167,7 +166,7 @@ export default function App() {
             // }
             multiline
             // numberOfLines={5} // prefer maxHeight on iOS
-            scrollEnabled
+            scrollEnabled={false}
             onPasteImageData={(e) => {
               setImage(e);
               console.log(e);

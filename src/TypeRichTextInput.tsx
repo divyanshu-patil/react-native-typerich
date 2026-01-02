@@ -4,21 +4,18 @@ import type { NativeSyntheticEvent } from 'react-native';
 
 import NativeTypeRichTextInput, {
   Commands,
-  type OnChangeSelectionEvent,
-  type OnChangeTextEvent,
-  type onPasteImageEventData,
-  type TypeRichTextInputNativeProps,
 } from './TypeRichTextInputNativeComponent';
 
-// let NativeTypeRichTextInput: any;
+import type {
+  OnChangeSelectionEvent,
+  OnChangeTextEvent,
+  onPasteImageEventData,
+} from './TypeRichTextInputNativeComponent';
+import type {
+  TypeRichTextInputProps,
+  TypeRichTextInputRef,
+} from './types/TypeRichTextInput';
 
-// if (Platform.OS === 'android') {
-//   NativeTypeRichTextInput =
-//     require('./TypeRichTextInputNativeComponent').default;
-// } else {
-//   // iOS fallback (temporary)
-//   NativeTypeRichTextInput = View;
-// }
 type MaybeNativeEvent<T> = T | { nativeEvent: T };
 
 export function normalizeEvent<T>(event: MaybeNativeEvent<T>): T {
@@ -26,36 +23,6 @@ export function normalizeEvent<T>(event: MaybeNativeEvent<T>): T {
     return (event as { nativeEvent: T }).nativeEvent;
   }
   return event as T;
-}
-
-// normalised events
-export interface TypeRichTextInputProps
-  extends Omit<
-    TypeRichTextInputNativeProps,
-    | 'onChangeText'
-    | 'onChangeSelection'
-    | 'onInputFocus'
-    | 'onInputBlur'
-    | 'onPasteImage'
-  > {
-  onFocus?: () => void;
-  onBlur?: () => void;
-  onChangeText?: (value: string) => void;
-  onChangeSelection?: (event: {
-    start: number;
-    end: number;
-    text: string;
-  }) => void;
-  onPasteImageData?: (data: onPasteImageEventData) => void;
-}
-
-export interface TypeRichTextInputRef {
-  focus: () => void;
-  blur: () => void;
-  setText: (text: string) => void;
-  insertTextAt: (start: number, end: number, text: string) => void;
-  setSelection: (start: number, end: number) => void;
-  getNativeRef: () => any | null;
 }
 
 /**
@@ -66,7 +33,7 @@ export interface TypeRichTextInputRef {
  * - Fabric-based rendering
  * - custom ShadowNode on Android
  *
- * iOS support is currently in Beta Stage and
+ * iOS support is currently in Beta Stage
  */
 const TypeRichTextInput = forwardRef(
   (props: TypeRichTextInputProps, ref: Ref<TypeRichTextInputRef>) => {
