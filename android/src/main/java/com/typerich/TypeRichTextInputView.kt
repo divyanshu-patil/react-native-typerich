@@ -64,6 +64,7 @@ class TypeRichTextInputView : AppCompatEditText {
   private var lineHeightPx: Int? = null
   private var isSettingTextFromJS = false
   private var isInitialized = false
+  private var disableImagePasting = false
 
   constructor(context: Context) : super(context) {
     prepareComponent()
@@ -140,23 +141,34 @@ class TypeRichTextInputView : AppCompatEditText {
   override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection? {
     val ic = super.onCreateInputConnection(outAttrs) ?: return null
 
-    EditorInfoCompat.setContentMimeTypes(
-      outAttrs,
-      arrayOf("image/png", "image/jpg", "image/jpeg", "image/gif", "image/webp")
-    )
+    if (!disableImagePasting) {
+      EditorInfoCompat.setContentMimeTypes(
+        outAttrs,
+        arrayOf("image/png", "image/jpg", "image/jpeg", "image/gif", "image/webp")
+      )
 
-    return InputConnectionCompat.createWrapper(ic, outAttrs, onCommitContent)
+      return InputConnectionCompat.createWrapper(ic, outAttrs, onCommitContent)
+    }
+
+    return ic
   }
 
   private val onCommitContent = InputConnectionCompat.OnCommitContentListener { info, flags, _ ->
     try {
-      // request permission if needed
-      if ((flags and InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION) != 0) {
+      val hasPermission =
+        (flags and InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION) != 0
+
+      if (hasPermission) {
         try {
           info.requestPermission()
-        } catch (ex: Exception) {
-          // permission failed
+        } catch (_: Exception) {}
+      }
+
+      if (disableImagePasting) {
+        if (hasPermission) {
+          try { info.releasePermission() } catch (_: Exception) {}
         }
+        return@OnCommitContentListener false
       }
 
       val uri = info.contentUri
@@ -189,7 +201,7 @@ class TypeRichTextInputView : AppCompatEditText {
     }
   }
 
-  // paste handler
+  // context menu paste handler
   override fun onTextContextMenuItem(id: Int): Boolean {
     if (id == android.R.id.paste || id == android.R.id.pasteAsPlainText) {
       val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
@@ -197,6 +209,12 @@ class TypeRichTextInputView : AppCompatEditText {
 
       val clip = clipboard.primaryClip ?: return super.onTextContextMenuItem(id)
       val item = clip.getItemAt(0)
+
+      if (disableImagePasting) {
+        if (item.uri != null || item.intent?.data != null) {
+          return true
+        }
+      }
 
       // uri
       item.uri?.let { uri ->
@@ -575,6 +593,10 @@ class TypeRichTextInputView : AppCompatEditText {
       // same logic as ReactTextView
       setLineSpacing(extra.toFloat(), 1f)
     }
+  }
+
+  fun setDisableImagePasting(disabled: Boolean){
+    this.disableImagePasting = disabled
   }
 
   override fun isLayoutRequested(): Boolean {

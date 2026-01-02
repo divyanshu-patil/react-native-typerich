@@ -28,7 +28,7 @@ export function normalizeEvent<T>(event: MaybeNativeEvent<T>): T {
   return event as T;
 }
 
-// Public facing props (same as NativeProps but events normalized)
+// normalised events
 export interface TypeRichTextInputProps
   extends Omit<
     TypeRichTextInputNativeProps,
@@ -38,7 +38,6 @@ export interface TypeRichTextInputProps
     | 'onInputBlur'
     | 'onPasteImage'
   > {
-  // JS-friendly callbacks
   onFocus?: () => void;
   onBlur?: () => void;
   onChangeText?: (value: string) => void;
@@ -67,8 +66,7 @@ export interface TypeRichTextInputRef {
  * - Fabric-based rendering
  * - custom ShadowNode on Android
  *
- * iOS support is currently unavailable and renders a `View` comp as fallback
- * we are planning to add support for ios too soon
+ * iOS support is currently in Beta Stage and
  */
 const TypeRichTextInput = forwardRef(
   (props: TypeRichTextInputProps, ref: Ref<TypeRichTextInputRef>) => {
