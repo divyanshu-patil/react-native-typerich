@@ -187,19 +187,20 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
     NSString *newText = NSStringFromCppString(newProps.value);
     NSString *currentText = _textView.text ?: @"";
 
-    // Do NOT overwrite while user is editing
-    if (_textView.isFirstResponder) {
-      // Only update if text is actually different
-      if (![currentText isEqualToString:newText]) {
-        // DO NOTHING — let native drive text
-        // Selection stability > strict control
-      }
-    } else {
-      if (![currentText isEqualToString:newText]) {
-        _textView.text = newText;
-      }
-    }
+    if (![currentText isEqualToString:newText]) {
+      NSRange prevSelection = _textView.selectedRange;
 
+      self.blockEmitting = YES;
+      _textView.text = newText;
+
+      NSInteger len = newText.length;
+      NSInteger start = MIN(prevSelection.location, len);
+      NSInteger end   = MIN(prevSelection.location + prevSelection.length, len);
+
+      _textView.selectedRange = NSMakeRange(start, end - start);
+      self.blockEmitting = NO;
+    }
+    [self invalidateTextLayout];
   }
 
   // defaultValue (mount only)

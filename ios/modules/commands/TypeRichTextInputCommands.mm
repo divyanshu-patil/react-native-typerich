@@ -74,8 +74,6 @@
       NSTextStorage *storage = tv.textStorage;
 
       NSRange oldSelection = tv.selectedRange;
-
-      [storage beginEditing];
       
       NSDictionary *attrs = [self baseAttributesForTextView:tv];
 
@@ -85,8 +83,6 @@
 
       [storage beginEditing];
       [storage setAttributedString:attrText];
-      [storage endEditing];
-
       [storage endEditing];
 
       // Clamp & restore selection
@@ -281,30 +277,30 @@
   };
 }
 
-static NSRange DiffRange(NSString *oldText, NSString *newText) {
-  NSInteger oldLen = oldText.length;
-  NSInteger newLen = newText.length;
-
-  NSInteger start = 0;
-  while (start < oldLen &&
-         start < newLen &&
-         [oldText characterAtIndex:start] ==
-         [newText characterAtIndex:start]) {
-    start++;
-  }
-
-  NSInteger endOld = oldLen;
-  NSInteger endNew = newLen;
-
-  while (endOld > start &&
-         endNew > start &&
-         [oldText characterAtIndex:endOld - 1] ==
-         [newText characterAtIndex:endNew - 1]) {
-    endOld--;
-    endNew--;
-  }
-
-  return NSMakeRange(start, endOld - start);
-}
+//static NSRange DiffRange(NSString *oldText, NSString *newText) {
+//  NSInteger oldLen = oldText.length;
+//  NSInteger newLen = newText.length;
+//
+//  NSInteger start = 0;
+//  while (start < oldLen &&
+//         start < newLen &&
+//         [oldText characterAtIndex:start] ==
+//         [newText characterAtIndex:start]) {
+//    start++;
+//  }
+//
+//  NSInteger endOld = oldLen;
+//  NSInteger endNew = newLen;
+//
+//  while (endOld > start &&
+//         endNew > start &&
+//         [oldText characterAtIndex:endOld - 1] ==
+//         [newText characterAtIndex:endNew - 1]) {
+//    endOld--;
+//    endNew--;
+//  }
+//
+//  return NSMakeRange(start, endOld - start);
+//}
 
 @end
