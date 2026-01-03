@@ -22,10 +22,12 @@ import { useEffect, useRef, useState } from 'react';
 // See: https://github.com/software-mansion/react-native-enriched/issues/229
 // const ANDROID_EXPERIMENTAL_SYNCHRONOUS_EVENTS = false;
 
+type Selection = { start: number; end: number };
+
 export default function App() {
   const inputRef = useRef<TypeRichTextInputRef>(null);
-  const textRef = useRef('hello world');
-  const selectionRef = useRef<{ start: number; end: number }>({
+  const textRef = useRef<string>('hello world');
+  const selectionRef = useRef<Selection>({
     start: 0,
     end: 0,
   });
@@ -143,7 +145,7 @@ export default function App() {
           <TypeRichTextInput
             ref={inputRef}
             // value={value}
-            defaultValue={textRef.current}
+            // defaultValue={textRef.current}
             style={styles.editorInput}
             placeholder="custom textinput"
             placeholderTextColor="rgb(0, 26, 114)"
@@ -153,7 +155,7 @@ export default function App() {
             autoFocus
             onChangeText={(text: string) => {
               console.log('text changed ========', text);
-              console.log('value  ========', value);
+              // console.log('value  ========', value);
               textRef.current = text;
               // setValue(text); // controlled by value
               inputRef.current?.setText(text); // controlled by command
@@ -223,6 +225,7 @@ export default function App() {
           </View>
           <View style={styles.buttonStack}>
             <Pressable
+              disabled
               onPress={() => {
                 console.log('setvalue');
                 console.log(value);
@@ -247,36 +250,20 @@ export default function App() {
               style={styles.button}
               onPress={() => {
                 const text = textRef.current;
-                const start = 6; // before "world"
-                const end = 11;
+                const selection = selectionRef.current;
 
-                const next =
-                  text.slice(0, start) +
-                  '*' +
-                  text.slice(start, end) +
-                  '*' +
-                  text.slice(end);
+                const result = wrapWithMarkdown(text, selection, '**');
 
-                // this MUST preserve cursor after native fix
-                inputRef.current?.setText(next);
-                let { start: selStart, end: selEnd } = selectionRef.current;
+                textRef.current = result.text;
 
-                if (selStart <= start) {
-                  // before wrap → no change
-                } else if (selStart < end) {
-                  // inside wrapped range → +1
-                  selStart += 1;
-                  selEnd += 1;
-                } else {
-                  // at or after end → +2
-                  selStart += 2;
-                  selEnd += 2;
-                }
-
-                inputRef.current?.setSelection(selStart, selEnd);
+                inputRef.current?.setText(result.text);
+                inputRef.current?.setSelection(
+                  result.selection.start,
+                  result.selection.end
+                );
               }}
             >
-              <Text style={styles.label2}>Wrap middle with * *</Text>
+              <Text style={styles.label2}>Wrap selection with * *</Text>
             </Pressable>
             <Pressable
               style={styles.button}
@@ -293,6 +280,48 @@ export default function App() {
       </ScrollView>
     </>
   );
+}
+
+export function wrapWithMarkdown(
+  text: string,
+  selection: Selection,
+  markdownChar = '*'
+): {
+  text: string;
+  selection: Selection;
+} {
+  let { start, end } = selection;
+
+  const before = text.slice(0, start);
+  const selected = text.slice(start, end);
+  const after = text.slice(end);
+
+  const hasLeading = before.endsWith('*');
+  const hasTrailing = after.startsWith('*');
+
+  // 🔁 TOGGLE OFF
+  if (hasLeading && hasTrailing) {
+    const newText = before.slice(0, -2) + selected + after.slice(2);
+
+    return {
+      text: newText,
+      selection: {
+        start: start - 2,
+        end: end - 2,
+      },
+    };
+  }
+
+  // ➕ WRAP
+  const newText = `${before}${markdownChar}${selected}${markdownChar}${after}`;
+
+  return {
+    text: newText,
+    selection: {
+      start: start + markdownChar.length,
+      end: end + markdownChar.length,
+    },
+  };
 }
 
 const ImageInfo = ({ image }: { image: onPasteImageEventData }) => {
