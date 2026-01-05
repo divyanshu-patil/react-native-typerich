@@ -39,6 +39,8 @@ const TypeRichTextInput = forwardRef(
   (props: TypeRichTextInputProps, ref: Ref<TypeRichTextInputRef>) => {
     const nativeRef = useRef(null);
 
+    const { scrollEnabled = true, ...restProps } = props;
+
     useImperativeHandle(ref, () => ({
       focus: () => {
         if (nativeRef.current) {
@@ -110,7 +112,8 @@ const TypeRichTextInput = forwardRef(
     return (
       <NativeTypeRichTextInput
         ref={nativeRef}
-        {...props}
+        {...restProps}
+        scrollEnabled={scrollEnabled}
         onInputFocus={() => props.onFocus?.()}
         onInputBlur={() => props.onBlur?.()}
         onChangeText={handleOnChangeTextEvent}

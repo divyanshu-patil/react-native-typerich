@@ -97,9 +97,7 @@ export default function App() {
     selectionRef.current = { start: e.start, end: e.end };
   }
 
-  const handleInsertTextAtCursor = () => {
-    const insert = 'Test';
-
+  const handleInsertTextAtCursor = (insert = 'Test') => {
     const { start, end } = selectionRef.current;
     const currentText = textRef.current ?? '';
 
@@ -122,7 +120,7 @@ export default function App() {
       }
 
       const index = Math.floor(Math.random() * randomWords.length);
-      handleSetValue(textRef.current + randomWords[index]);
+      handleInsertTextAtCursor(randomWords[index]);
 
       i++;
     }, 100); // 100ms
@@ -168,7 +166,6 @@ export default function App() {
             // }
             multiline
             // numberOfLines={5} // prefer maxHeight on iOS
-            scrollEnabled={false}
             onPasteImageData={(e) => {
               setImage(e);
               console.log(e);
@@ -208,7 +205,10 @@ export default function App() {
             <Pressable onPress={() => handleSetValue('')} style={styles.button}>
               <Text style={styles.label2}>clear Text</Text>
             </Pressable>
-            <Pressable onPress={handleInsertTextAtCursor} style={styles.button}>
+            <Pressable
+              onPress={() => handleInsertTextAtCursor('Test')}
+              style={styles.button}
+            >
               <Text style={styles.label2}>insert "Test" at cursor</Text>
             </Pressable>
           </View>
