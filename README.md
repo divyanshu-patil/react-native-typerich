@@ -8,6 +8,8 @@ currently available only for android
 ```sh
 npm install react-native-typerich
 ```
+> [!NOTE]
+> you will need to prebuild app in expo
 
 ## Usage
 
