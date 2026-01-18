@@ -9,6 +9,9 @@ currently available only for android
 npm install react-native-typerich
 ```
 
+> [!NOTE]
+> you will need to prebuild your app on expo project
+
 ## Usage
 
 ```jsx
