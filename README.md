@@ -1,7 +1,6 @@
 # react-native-typerich
 
 Drop in TextInput replacement with inbuilt support for Image Pasting and Gboard stickers
-currently available only for android
 
 ## Installation
 
