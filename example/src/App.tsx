@@ -472,6 +472,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Nunito-Regular',
     paddingVertical: 12,
     paddingHorizontal: 14,
+    borderWidth: 2,
   },
   scrollPlaceholder: {
     marginTop: 24,
