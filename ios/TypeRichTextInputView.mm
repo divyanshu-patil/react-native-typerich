@@ -130,7 +130,7 @@ Class<RCTComponentViewProtocol> TypeRichTextInputViewCls(void) {
     _disableImagePasting = NO;
     
     // Add textView as subview (not contentView)
-    [self addSubview:_textView];
+    self.contentView = _textView;
   
     [self updatePlaceholderVisibility];
   }
@@ -751,19 +751,6 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
 /// Show placeholder only when text is empty
 - (void)updatePlaceholderVisibility {
   _placeholderLabel.hidden = _textView.text.length > 0;
-}
-
-- (void)layoutSubviews {
-  [super layoutSubviews];
-  
-  // Ensure text view fills the parent bounds
-  _textView.frame = self.bounds;
-  
-  // Debug: Log frame and content size
-  NSLog(@"TextView frame: %@, contentSize: %@, maxLines: %ld",
-        NSStringFromCGRect(_textView.frame),
-        NSStringFromCGSize(_textView.contentSize),
-        (long)_textView.textContainer.maximumNumberOfLines);
 }
 
 #pragma mark - Event emitter
