@@ -470,8 +470,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'gainsboro',
     // fontSize: 34,
     fontFamily: 'Nunito-Regular',
-    // paddingVertical: 12,
-    // paddingHorizontal: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
   },
   scrollPlaceholder: {
     marginTop: 24,

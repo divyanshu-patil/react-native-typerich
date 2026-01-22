@@ -2449,7 +2449,7 @@ PODS:
     - React-perflogger (= 0.83.0)
     - React-utils (= 0.83.0)
     - SocketRocket
-  - ReactNativeTypeRich (2.2.0):
+  - ReactNativeTypeRich (2.2.1):
     - boost
     - DoubleConversion
     - fast_float
@@ -2802,7 +2802,7 @@ SPEC CHECKSUMS:
   ReactAppDependencyProvider: ebcf3a78dc1bcdf054c9e8d309244bade6b31568
   ReactCodegen: 11c08ff43a62009d48c71de000352e4515918801
   ReactCommon: 424cc34cf5055d69a3dcf02f3436481afb8b0f6f
-  ReactNativeTypeRich: 6574bc6206275e1afce4d8defa6d1bde7443e738
+  ReactNativeTypeRich: 86e81019b5200d62bc5995ab15d75ebaef081779
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: 6ca93c8c13f56baeec55eb608577619b17a4d64e
 
