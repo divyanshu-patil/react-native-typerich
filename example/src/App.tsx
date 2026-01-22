@@ -171,7 +171,7 @@ export default function App() {
               console.log(e);
             }}
             keyboardAppearance="dark"
-            editable={true}
+            // editable={true}
             lineHeight={22}
             fontFamily={Platform.select({ ios: 'georgia', android: 'serif' })} // fontweight won't work unless this is used
             fontStyle="italic"
