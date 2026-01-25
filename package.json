@@ -1,6 +1,6 @@
 {
   "name": "react-native-typerich",
-  "version": "2.2.3",
+  "version": "2.2.4",
   "description": "Drop in TextInput replacement with inbuilt support for Image Pasting and Gboard stickers",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
