@@ -60,82 +60,77 @@
 /// setText(text) - diff-based with proper cursor tracking, non-undoable
 - (void)setText:(NSString *)text
 {
-  UITextView *tv = _textView;
-  TypeRichTextInputView *owner = _owner;
-  if (!tv || !owner) return;
+    UITextView *tv = _textView;
+    TypeRichTextInputView *owner = _owner;
+    if (!tv || !owner) return;
 
-  dispatch_async(dispatch_get_main_queue(), ^{
-    // Never interrupt IME composition
-    if (tv.markedTextRange) return;
-    
-    NSString *newText = text ?: @"";
-    NSString *currentText = tv.text ?: @"";
-    
-    // commented for now as causing issues when textinput is blank
-    // if ([currentText isEqualToString:newText]) {
-    //    return;
-    // }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (tv.markedTextRange) return;
+        
+        NSString *newText = text ?: @"";
+        NSString *currentText = tv.text ?: @"";
+        
+        // if text is same, do nothing.
+        if ([currentText isEqualToString:newText]) {
+            return;
+        }
 
-    owner.blockEmitting = YES;
-    
-    NSRange oldSelection = tv.selectedRange;
-    
-    // Calculate minimal diff range
-    NSRange diffRange = [self calculateDiffRange:currentText newText:newText];
-    
-    // Calculate what text will be inserted
-    NSInteger newLength = newText.length - (currentText.length - diffRange.length);
-    NSString *replacementText = @"";
-    
-    if (newLength > 0) {
-      replacementText = [newText substringWithRange:NSMakeRange(diffRange.location, newLength)];
-    }
-    
-    // Convert NSRange to UITextRange
-    UITextPosition *start = [tv positionFromPosition:tv.beginningOfDocument
-                                              offset:diffRange.location];
-    UITextPosition *end = [tv positionFromPosition:tv.beginningOfDocument
-                                            offset:NSMaxRange(diffRange)];
-    
-    if (start && end) {
-      UITextRange *range = [tv textRangeFromPosition:start toPosition:end];
-      [tv replaceRange:range withText:replacementText];
-      
-      // Calculate cursor adjustment
-      NSInteger delta = replacementText.length - diffRange.length;
-      NSInteger newCursorPos = oldSelection.location;
-      
-      // If change happened before cursor, adjust cursor position
-      if (diffRange.location <= oldSelection.location) {
-        newCursorPos = oldSelection.location + delta;
-      }
-      
-      // Clamp to valid range
-      newCursorPos = MAX(0, MIN(newCursorPos, newText.length));
-      
-      // Restore cursor at adjusted position
-      tv.selectedRange = NSMakeRange(newCursorPos, 0);
-      
-    } else {
-      // Fallback: full replace with cursor clamping
-      tv.text = newText;
-      NSInteger safeLoc = MIN(oldSelection.location, newText.length);
-      tv.selectedRange = NSMakeRange(safeLoc, 0);
-    }
-    
-    owner.blockEmitting = NO;
-    
-    [owner updatePlaceholderVisibilityFromCommand];
-    
-    if (tv.scrollEnabled) {
-      [owner invalidateTextLayoutFromCommand];
-      
-      // scroll to cursor
-      [tv scrollRangeToVisible:tv.selectedRange];
-    }
-    
-    [owner dispatchSelectionChangeIfNeeded];
-  });
+        owner.blockEmitting = YES;
+        
+        NSRange oldSelection = tv.selectedRange;
+        NSRange diffRange = [self calculateDiffRange:currentText newText:newText];
+        
+        NSInteger newLength = newText.length - (currentText.length - diffRange.length);
+        NSString *replacementText = (newLength > 0)
+            ? [newText substringWithRange:NSMakeRange(diffRange.location, newLength)]
+            : @"";
+        
+        UITextPosition *start = [tv positionFromPosition:tv.beginningOfDocument offset:diffRange.location];
+        UITextPosition *end = [tv positionFromPosition:tv.beginningOfDocument offset:NSMaxRange(diffRange)];
+        
+        if (start && end) {
+            UITextRange *range = [tv textRangeFromPosition:start toPosition:end];
+            
+            // text replacement
+            [tv replaceRange:range withText:replacementText];
+            
+            // if the user is typing at the end of the selection,
+            // and we just inserted text that matches what the system expected,
+            // we should only jump the cursor if the JS-provided state differs
+            // from the current internal state.
+            
+            NSInteger delta = replacementText.length - diffRange.length;
+            BOOL cursorWasAtEnd = (oldSelection.location == currentText.length);
+            
+            if (cursorWasAtEnd) {
+                tv.selectedRange = NSMakeRange(newText.length, 0);
+            } else {
+                // If the change happened at or before the cursor, shift it
+                if (diffRange.location <= oldSelection.location) {
+                    NSInteger newPos = oldSelection.location + delta;
+                    newPos = MAX(0, MIN(newPos, newText.length));
+                    
+                    // IMPORTANT: Only set the range if it's actually different.
+                    // Setting selectedRange unnecessarily resets the keyboard's internal state.
+                    if (tv.selectedRange.location != newPos) {
+                        tv.selectedRange = NSMakeRange(newPos, 0);
+                    }
+                }
+            }
+        } else {
+            tv.text = newText;
+        }
+        
+        owner.blockEmitting = NO;
+        [owner updatePlaceholderVisibilityFromCommand];
+        
+        if (tv.scrollEnabled) {
+            [owner invalidateTextLayoutFromCommand];
+            [tv scrollRangeToVisible:tv.selectedRange];
+        }
+        
+        [owner dispatchSelectionChangeIfNeeded];
+    });
 }
 
 // Helper: Calculate minimal diff range between two strings
